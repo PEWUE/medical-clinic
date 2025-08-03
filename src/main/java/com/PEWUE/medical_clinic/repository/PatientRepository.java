@@ -11,7 +11,7 @@ import java.util.Optional;
 public class PatientRepository {
     private List<Patient> patients = new ArrayList<>();
 
-    public List<Patient> findAll() {
+    public List<Patient> getAll() {
         return new ArrayList<>(patients);
     }
 

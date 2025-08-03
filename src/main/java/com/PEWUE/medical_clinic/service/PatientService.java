@@ -15,7 +15,7 @@ public class PatientService {
     private final PatientRepository patientRepository;
 
     public List<Patient> getAllPatients() {
-        return patientRepository.findAll();
+        return patientRepository.getAll();
     }
 
     public Patient getPatientByEmail(String email) {
