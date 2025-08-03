@@ -1,4 +1,4 @@
-package com.PEWUE.medical_clinic.repositories;
+package com.PEWUE.medical_clinic.repository;
 
 import com.PEWUE.medical_clinic.model.Patient;
 import org.springframework.stereotype.Repository;

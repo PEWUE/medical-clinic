@@ -1,9 +1,9 @@
-package com.PEWUE.medical_clinic.services;
+package com.PEWUE.medical_clinic.service;
 
 import com.PEWUE.medical_clinic.exceptions.EmailAlreadyExistsException;
 import com.PEWUE.medical_clinic.exceptions.PatientNotFoundException;
 import com.PEWUE.medical_clinic.model.Patient;
-import com.PEWUE.medical_clinic.repositories.PatientRepository;
+import com.PEWUE.medical_clinic.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
