@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @Repository
 public class PatientRepository {
-    private List<Patient> patients = new ArrayList<>();
+    private final List<Patient> patients = new ArrayList<>();
 
     public List<Patient> getAll() {
         return new ArrayList<>(patients);
