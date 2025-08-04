@@ -1,5 +1,6 @@
 package com.PEWUE.medical_clinic.repository;
 
+import com.PEWUE.medical_clinic.exceptions.EmailAlreadyExistsException;
 import com.PEWUE.medical_clinic.model.Patient;
 import org.springframework.stereotype.Repository;
 
@@ -21,29 +22,26 @@ public class PatientRepository {
                 .findFirst();
     }
 
-    public boolean add(Patient patient) {
+    public Patient add(Patient patient) {
         if (findByEmail(patient.getEmail()).isPresent()) {
-            return false;
+            throw new EmailAlreadyExistsException("Email " + patient.getEmail() + " is already taken");
         }
         patients.add(patient);
-        return true;
+        return patient;
     }
 
     public boolean remove(String email) {
         return patients.removeIf(patient -> patient.getEmail().equals(email));
     }
 
-    public boolean edit(String email, Patient updatedPatient) {
-        for (int i = 0; i < patients.size(); i++) {
-            Patient current = patients.get(i);
-            if (current.getEmail().equals(email)) {
-                if (!email.equals(updatedPatient.getEmail()) && findByEmail(updatedPatient.getEmail()).isPresent()) {
-                    return false;
-                }
-                patients.set(i, updatedPatient);
-                return true;
-            }
-        }
-        return false;
+    public Patient edit(Patient patient, Patient updatedPatient) {
+        patient.setFirstName(updatedPatient.getFirstName());
+        patient.setLastName(updatedPatient.getLastName());
+        patient.setEmail(updatedPatient.getEmail());
+        patient.setPassword(updatedPatient.getPassword());
+        patient.setIdCardNo(updatedPatient.getIdCardNo());
+        patient.setPhoneNumber(updatedPatient.getPhoneNumber());
+        patient.setBirthday(updatedPatient.getBirthday());
+        return patient;
     }
 }

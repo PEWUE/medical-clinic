@@ -23,21 +23,19 @@ public class PatientController {
     private final PatientService patientService;
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
     public List<Patient> getPatients() {
         return patientService.getAllPatients();
     }
 
     @GetMapping("/{email}")
-    @ResponseStatus(HttpStatus.OK)
     public Patient getPatientByEmail(@PathVariable String email) {
         return patientService.getPatientByEmail(email);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void addPatient(@RequestBody Patient patient) {
-        patientService.addPatient(patient);
+    public Patient addPatient(@RequestBody Patient patient) {
+        return patientService.addPatient(patient);
     }
 
     @DeleteMapping("/{email}")
@@ -47,8 +45,7 @@ public class PatientController {
     }
 
     @PutMapping("/{email}")
-    @ResponseStatus(HttpStatus.OK)
-    public void editPatient(@PathVariable String email, @RequestBody Patient patient) {
-        patientService.editPatient(email, patient);
+    public Patient editPatient(@PathVariable String email, @RequestBody Patient patient) {
+        return patientService.editPatient(email, patient);
     }
 }
