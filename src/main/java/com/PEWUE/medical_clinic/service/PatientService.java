@@ -24,6 +24,9 @@ public class PatientService {
     }
 
     public Patient addPatient(Patient patient) {
+        if (patientRepository.findByEmail(patient.getEmail()).isPresent()) {
+            throw new EmailAlreadyExistsException("Email " + patient.getEmail() + " is already taken");
+        }
         return patientRepository.add(patient);
     }
 
@@ -35,6 +38,9 @@ public class PatientService {
 
     public Patient editPatient(String email, Patient updatedPatient) {
         Patient patient = patientRepository.findByEmail(email).orElseThrow(() -> new PatientNotFoundException("Patient with email " + email + " does not exist"));
+        if (!email.equals(updatedPatient.getEmail()) && patientRepository.findByEmail(updatedPatient.getEmail()).isPresent()) {
+            throw new EmailAlreadyExistsException("Email " + updatedPatient.getEmail() + " is already taken");
+        }
         return patientRepository.edit(patient, updatedPatient);
     }
 }

@@ -23,9 +23,6 @@ public class PatientRepository {
     }
 
     public Patient add(Patient patient) {
-        if (findByEmail(patient.getEmail()).isPresent()) {
-            throw new EmailAlreadyExistsException("Email " + patient.getEmail() + " is already taken");
-        }
         patients.add(patient);
         return patient;
     }
@@ -35,13 +32,6 @@ public class PatientRepository {
     }
 
     public Patient edit(Patient patient, Patient updatedPatient) {
-        patient.setFirstName(updatedPatient.getFirstName());
-        patient.setLastName(updatedPatient.getLastName());
-        patient.setEmail(updatedPatient.getEmail());
-        patient.setPassword(updatedPatient.getPassword());
-        patient.setIdCardNo(updatedPatient.getIdCardNo());
-        patient.setPhoneNumber(updatedPatient.getPhoneNumber());
-        patient.setBirthday(updatedPatient.getBirthday());
-        return patient;
+        return patient.edit(updatedPatient);
     }
 }
