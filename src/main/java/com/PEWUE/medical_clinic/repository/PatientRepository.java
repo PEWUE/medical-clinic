@@ -1,6 +1,5 @@
 package com.PEWUE.medical_clinic.repository;
 
-import com.PEWUE.medical_clinic.exceptions.EmailAlreadyExistsException;
 import com.PEWUE.medical_clinic.model.Patient;
 import org.springframework.stereotype.Repository;
 

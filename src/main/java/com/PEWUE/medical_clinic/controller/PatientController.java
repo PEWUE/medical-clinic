@@ -1,11 +1,13 @@
 package com.PEWUE.medical_clinic.controller;
 
+import com.PEWUE.medical_clinic.command.ChangePasswordCommand;
 import com.PEWUE.medical_clinic.model.Patient;
 import com.PEWUE.medical_clinic.service.PatientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -47,5 +49,10 @@ public class PatientController {
     @PutMapping("/{email}")
     public Patient editPatient(@PathVariable String email, @RequestBody Patient patient) {
         return patientService.editPatient(email, patient);
+    }
+
+    @PatchMapping("/{email}")
+    public Patient changePassword(@PathVariable String email, @RequestBody ChangePasswordCommand command) {
+        return patientService.changePassword(email, command.getPassword());
     }
 }
