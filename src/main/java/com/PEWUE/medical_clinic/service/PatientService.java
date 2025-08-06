@@ -4,10 +4,12 @@ import com.PEWUE.medical_clinic.exceptions.EmailAlreadyExistsException;
 import com.PEWUE.medical_clinic.exceptions.PatientNotFoundException;
 import com.PEWUE.medical_clinic.model.Patient;
 import com.PEWUE.medical_clinic.repository.PatientRepository;
+import com.PEWUE.medical_clinic.validator.PatientValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -24,9 +26,7 @@ public class PatientService {
     }
 
     public Patient addPatient(Patient patient) {
-        if (patientRepository.findByEmail(patient.getEmail()).isPresent()) {
-            throw new EmailAlreadyExistsException("Email " + patient.getEmail() + " is already taken");
-        }
+        PatientValidator.validateCreatePatient(patient, patientRepository);
         return patientRepository.add(patient);
     }
 
@@ -39,13 +39,12 @@ public class PatientService {
     public Patient editPatient(String email, Patient updatedPatient) {
         Patient patient = patientRepository.findByEmail(email)
                 .orElseThrow(() -> new PatientNotFoundException("Patient with email " + email + " does not exist"));
-        if (!email.equals(updatedPatient.getEmail()) && patientRepository.findByEmail(updatedPatient.getEmail()).isPresent()) {
-            throw new EmailAlreadyExistsException("Email " + updatedPatient.getEmail() + " is already taken");
-        }
+        PatientValidator.validateEditPatient(patient, updatedPatient, patientRepository);
         return patientRepository.edit(patient, updatedPatient);
     }
 
     public Patient changePassword(String email, String password) {
+        PatientValidator.validatePassword(password);
         Patient patient = patientRepository.findByEmail(email)
                 .orElseThrow(() -> new PatientNotFoundException("Patient with email " + email + " does not exist"));
         patient.setPassword(password);
