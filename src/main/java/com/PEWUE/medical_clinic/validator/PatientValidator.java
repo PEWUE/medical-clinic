@@ -1,6 +1,6 @@
 package com.PEWUE.medical_clinic.validator;
 
-import com.PEWUE.medical_clinic.exceptions.EmailAlreadyExistsException;
+import com.PEWUE.medical_clinic.exception.EmailAlreadyExistsException;
 import com.PEWUE.medical_clinic.model.Patient;
 import com.PEWUE.medical_clinic.repository.PatientRepository;
 import lombok.AccessLevel;
