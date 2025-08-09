@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .status(500)
                 .error("Unexpected error")
-                .message("Unexpected error")
+                .message(ex.getMessage())
                 .path(request.getRequestURI())
                 .build();
         return ResponseEntity.status(500).body(error);
