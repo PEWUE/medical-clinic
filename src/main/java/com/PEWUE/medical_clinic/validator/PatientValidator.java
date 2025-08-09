@@ -19,7 +19,7 @@ public final class PatientValidator {
             throw new IllegalArgumentException("Fields should not be null");
         }
         if (patientRepository.findByEmail(patient.getEmail()).isPresent()) {
-            throw new EmailAlreadyExistsException("Email " + patient.getEmail() + " is already taken");
+            throw new EmailAlreadyExistsException(patient.getEmail());
         }
     }
 
@@ -34,7 +34,7 @@ public final class PatientValidator {
             throw new IllegalArgumentException("Fields should not be null");
         }
         if (!existingPatient.getEmail().equals(updatedPatient.getEmail()) && patientRepository.findByEmail(updatedPatient.getEmail()).isPresent()) {
-            throw new EmailAlreadyExistsException("Email " + updatedPatient.getEmail() + " is already taken");
+            throw new EmailAlreadyExistsException(updatedPatient.getEmail());
         }
         if (!existingPatient.getIdCardNo().equals(updatedPatient.getIdCardNo())) {
             throw new IllegalArgumentException("Changing the ID card number is not allowed");
