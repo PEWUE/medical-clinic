@@ -1,9 +1,12 @@
 package com.PEWUE.medical_clinic.controller;
 
 import com.PEWUE.medical_clinic.command.ChangePasswordCommand;
+import com.PEWUE.medical_clinic.dto.PatientDto;
+import com.PEWUE.medical_clinic.mapper.PatientMapper;
 import com.PEWUE.medical_clinic.model.Patient;
 import com.PEWUE.medical_clinic.service.PatientService;
 import lombok.RequiredArgsConstructor;
+import org.mapstruct.factory.Mappers;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,27 +20,31 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/patients")
 public class PatientController {
     private final PatientService patientService;
+    private final PatientMapper patientMapper;
 
     @GetMapping
-    public List<Patient> getPatients() {
-        return patientService.getAllPatients();
+    public List<PatientDto> getPatients() {
+        return patientService.getAllPatients().stream()
+                .map(patientMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{email}")
-    public Patient getPatientByEmail(@PathVariable String email) {
-        return patientService.getPatientByEmail(email);
+    public PatientDto getPatientByEmail(@PathVariable String email) {
+        return patientMapper.toDto(patientService.getPatientByEmail(email));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Patient addPatient(@RequestBody Patient patient) {
-        return patientService.addPatient(patient);
+    public PatientDto addPatient(@RequestBody Patient patient) {
+        return patientMapper.toDto(patientService.addPatient(patient));
     }
 
     @DeleteMapping("/{email}")
@@ -47,12 +54,12 @@ public class PatientController {
     }
 
     @PutMapping("/{email}")
-    public Patient editPatient(@PathVariable String email, @RequestBody Patient patient) {
-        return patientService.editPatient(email, patient);
+    public PatientDto editPatient(@PathVariable String email, @RequestBody Patient patient) {
+        return patientMapper.toDto(patientService.editPatient(email, patient));
     }
 
     @PatchMapping("/{email}")
-    public Patient changePassword(@PathVariable String email, @RequestBody ChangePasswordCommand command) {
-        return patientService.changePassword(email, command.getPassword());
+    public PatientDto changePassword(@PathVariable String email, @RequestBody ChangePasswordCommand command) {
+        return patientMapper.toDto(patientService.changePassword(email, command.getPassword()));
     }
 }
