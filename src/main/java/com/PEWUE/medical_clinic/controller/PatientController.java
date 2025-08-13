@@ -6,7 +6,6 @@ import com.PEWUE.medical_clinic.mapper.PatientMapper;
 import com.PEWUE.medical_clinic.model.Patient;
 import com.PEWUE.medical_clinic.service.PatientService;
 import lombok.RequiredArgsConstructor;
-import org.mapstruct.factory.Mappers;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
