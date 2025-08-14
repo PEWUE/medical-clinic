@@ -71,29 +71,118 @@ public class PatientController {
                     description = "Patient not found",
                     content = @Content(
                             mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessageDto.class))),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @GetMapping("/{email}")
     public PatientDto getPatientByEmail(@PathVariable String email) {
         return patientMapper.toDto(patientService.getPatientByEmail(email));
     }
 
+    @Operation(summary = "Add patient to collection")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Patient created",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = PatientDto.class))),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "Given email already exists",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessageDto.class))),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessageDto.class)))})
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PatientDto addPatient(@RequestBody Patient patient) {
         return patientMapper.toDto(patientService.addPatient(patient));
     }
 
+    @Operation(summary = "Delete patient by email")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Patient deleted"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Patient not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessageDto.class))),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessageDto.class)))})
     @DeleteMapping("/{email}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removePatient(@PathVariable String email) {
         patientService.removePatient(email);
     }
 
+    @Operation(summary = "Edit patient by email")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Patient deleted",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = PatientDto.class))),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Patient not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessageDto.class))),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "Given email already exists",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessageDto.class))),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessageDto.class)))})
     @PutMapping("/{email}")
     public PatientDto editPatient(@PathVariable String email, @RequestBody Patient patient) {
         return patientMapper.toDto(patientService.editPatient(email, patient));
     }
 
+    @Operation(summary = "Change patient's password")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Password changed",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = PatientDto.class))),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Patient not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessageDto.class))),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessageDto.class)))})
     @PatchMapping("/{email}")
     public PatientDto changePassword(@PathVariable String email, @RequestBody ChangePasswordCommand command) {
         return patientMapper.toDto(patientService.changePassword(email, command.getPassword()));
