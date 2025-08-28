@@ -15,7 +15,7 @@ public class PatientService {
     private final PatientRepository patientRepository;
 
     public List<Patient> getAllPatients() {
-        return patientRepository.getAll();
+        return patientRepository.findAll();
     }
 
     public Patient getPatientByEmail(String email) {
@@ -25,20 +25,19 @@ public class PatientService {
 
     public Patient addPatient(Patient patient) {
         PatientValidator.validateCreatePatient(patient, patientRepository);
-        return patientRepository.add(patient);
+        return patientRepository.save(patient);
     }
 
     public void removePatient(String email) {
-        if (!patientRepository.remove(email)) {
-            throw new PatientNotFoundException(email);
-        }
+        Patient patient = patientRepository.findByEmail(email).orElseThrow(() -> new PatientNotFoundException(email));
+        patientRepository.delete(patient);
     }
 
     public Patient editPatient(String email, Patient updatedPatient) {
         Patient patient = patientRepository.findByEmail(email)
                 .orElseThrow(() -> new PatientNotFoundException(email));
         PatientValidator.validateEditPatient(patient, updatedPatient, patientRepository);
-        return patientRepository.edit(patient, updatedPatient);
+        return patientRepository.save(patient.edit(updatedPatient));
     }
 
     public Patient changePassword(String email, String password) {
@@ -46,6 +45,6 @@ public class PatientService {
         Patient patient = patientRepository.findByEmail(email)
                 .orElseThrow(() -> new PatientNotFoundException(email));
         patient.setPassword(password);
-        return patientRepository.edit(patient, patient);
+        return patientRepository.save(patient);
     }
 }
