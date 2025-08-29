@@ -36,7 +36,7 @@ public class Patient {
     @Column(name = "BIRTHDAY")
     private LocalDate birthday;
 
-    public Patient edit(Patient newData) {
+    public void edit(Patient newData) {
         this.firstName = newData.getFirstName();
         this.lastName = newData.getLastName();
         this.email = newData.getEmail();
@@ -44,6 +44,5 @@ public class Patient {
         this.idCardNo = newData.getIdCardNo();
         this.phoneNumber = newData.getPhoneNumber();
         this.birthday = newData.getBirthday();
-        return this;
     }
 }
