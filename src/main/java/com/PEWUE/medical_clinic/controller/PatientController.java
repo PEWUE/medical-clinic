@@ -1,6 +1,7 @@
 package com.PEWUE.medical_clinic.controller;
 
 import com.PEWUE.medical_clinic.command.ChangePasswordCommand;
+import com.PEWUE.medical_clinic.command.PatientCreateCommand;
 import com.PEWUE.medical_clinic.dto.ErrorMessageDto;
 import com.PEWUE.medical_clinic.dto.PatientDto;
 import com.PEWUE.medical_clinic.mapper.PatientMapper;
@@ -105,8 +106,8 @@ public class PatientController {
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public PatientDto addPatient(@RequestBody Patient patient) {
-        return patientMapper.toDto(patientService.addPatient(patient));
+    public PatientDto addPatient(@RequestBody PatientCreateCommand patient) {
+        return patientMapper.toDto(patientService.addPatient(patientMapper.toEntity(patient)));
     }
 
     @Operation(summary = "Delete patient by email")
@@ -159,15 +160,15 @@ public class PatientController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @PutMapping("/{email}")
-    public PatientDto editPatient(@PathVariable String email, @RequestBody Patient patient) {
-        return patientMapper.toDto(patientService.editPatient(email, patient));
+    public PatientDto editPatient(@PathVariable String email, @RequestBody PatientCreateCommand patient) {
+        return patientMapper.toDto(patientService.editPatient(email, patientMapper.toEntity(patient)));
     }
 
-    @Operation(summary = "Change patient's password")
+    @Operation(summary = "Change patient password by email")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Password changed",
+                    description = "Password has been changed",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = PatientDto.class))),
@@ -185,6 +186,6 @@ public class PatientController {
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @PatchMapping("/{email}")
     public PatientDto changePassword(@PathVariable String email, @RequestBody ChangePasswordCommand command) {
-        return patientMapper.toDto(patientService.changePassword(email, command.getPassword()));
+        return patientMapper.toDto(patientService.changePassword(email, command.password()));
     }
 }

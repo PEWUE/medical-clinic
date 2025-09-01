@@ -3,7 +3,9 @@ package com.PEWUE.medical_clinic.service;
 import com.PEWUE.medical_clinic.exception.PatientNotFoundException;
 import com.PEWUE.medical_clinic.model.Patient;
 import com.PEWUE.medical_clinic.repository.PatientRepository;
+import com.PEWUE.medical_clinic.repository.UserRepository;
 import com.PEWUE.medical_clinic.validator.PatientValidator;
+import com.PEWUE.medical_clinic.validator.UserValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PatientService {
     private final PatientRepository patientRepository;
+    private final UserRepository userRepository;
 
     public List<Patient> getAllPatients() {
         return patientRepository.findAll();
@@ -25,6 +28,7 @@ public class PatientService {
 
     public Patient addPatient(Patient patient) {
         PatientValidator.validateCreatePatient(patient, patientRepository);
+        UserValidator.validateCreateUser(patient.getUser(), userRepository);
         return patientRepository.save(patient);
     }
 
@@ -37,15 +41,16 @@ public class PatientService {
         Patient patient = patientRepository.findByEmail(email)
                 .orElseThrow(() -> new PatientNotFoundException(email));
         PatientValidator.validateEditPatient(patient, updatedPatient, patientRepository);
+        UserValidator.validateEditUser(updatedPatient.getUser(), userRepository);
         patient.edit(updatedPatient);
         return patientRepository.save(patient);
     }
 
     public Patient changePassword(String email, String password) {
-        PatientValidator.validatePassword(password);
+        UserValidator.validatePassword(password);
         Patient patient = patientRepository.findByEmail(email)
                 .orElseThrow(() -> new PatientNotFoundException(email));
-        patient.setPassword(password);
+        patient.getUser().setPassword(password);
         return patientRepository.save(patient);
     }
 }

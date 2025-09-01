@@ -12,10 +12,10 @@ public final class PatientValidator {
         if (patient.getFirstName() == null ||
                 patient.getLastName() == null ||
                 patient.getEmail() == null ||
-                patient.getPassword() == null ||
                 patient.getIdCardNo() == null ||
                 patient.getPhoneNumber() == null ||
-                patient.getBirthday() == null) {
+                patient.getBirthday() == null ||
+                patient.getUser() == null) {
             throw new IllegalArgumentException("Fields should not be null");
         }
         if (patientRepository.findByEmail(patient.getEmail()).isPresent()) {
@@ -27,7 +27,6 @@ public final class PatientValidator {
         if (updatedPatient.getFirstName() == null ||
                 updatedPatient.getLastName() == null ||
                 updatedPatient.getEmail() == null ||
-                updatedPatient.getPassword() == null ||
                 updatedPatient.getIdCardNo() == null ||
                 updatedPatient.getPhoneNumber() == null ||
                 updatedPatient.getBirthday() == null) {
@@ -38,12 +37,6 @@ public final class PatientValidator {
         }
         if (!existingPatient.getIdCardNo().equals(updatedPatient.getIdCardNo())) {
             throw new IllegalArgumentException("Changing the ID card number is not allowed");
-        }
-    }
-
-    public static void validatePassword(String password) {
-        if (password == null) {
-            throw new IllegalArgumentException("Field should not be null");
         }
     }
 }

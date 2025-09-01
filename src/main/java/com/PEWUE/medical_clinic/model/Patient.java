@@ -30,8 +30,6 @@ public class Patient {
     private String lastName;
     @Column(unique = true)
     private String email;
-    @Column(name = "PASSWORD")
-    private String password;
     @Column(name = "ID_CARD_NO", unique = true)
     private String idCardNo;
     @Column(name = "PHONE_NUMBER")
@@ -46,9 +44,9 @@ public class Patient {
         this.firstName = newData.getFirstName();
         this.lastName = newData.getLastName();
         this.email = newData.getEmail();
-        this.password = newData.getPassword();
         this.idCardNo = newData.getIdCardNo();
         this.phoneNumber = newData.getPhoneNumber();
         this.birthday = newData.getBirthday();
+        this.user = newData.getUser();
     }
 }
