@@ -1,5 +1,6 @@
 package com.PEWUE.medical_clinic.service;
 
+import com.PEWUE.medical_clinic.exception.DoctorNotFoundException;
 import com.PEWUE.medical_clinic.exception.PatientNotFoundException;
 import com.PEWUE.medical_clinic.exception.UserNotFoundException;
 import com.PEWUE.medical_clinic.model.Doctor;
@@ -23,6 +24,11 @@ public class DoctorService {
         return doctorRepository.findAll();
     }
 
+    public Doctor getDoctorByEmail(String email) {
+        return doctorRepository.findByUserEmail(email)
+                .orElseThrow(() -> new DoctorNotFoundException(email));
+    }
+
     public Doctor addDoctor(Doctor doctor) {
         DoctorValidator.validateCreateDoctor(doctor, doctorRepository);
         if (doctor.getUser() != null && doctor.getUser().getId() != null) {
@@ -35,14 +41,12 @@ public class DoctorService {
     }
 
     public void removeDoctor(String email) {
-        Doctor doctor = doctorRepository.findByEmail(email)
-                .orElseThrow(() -> new PatientNotFoundException(email));
+        Doctor doctor = getDoctorByEmail(email);
         doctorRepository.delete(doctor);
     }
 
     public Doctor editDoctor(String email, Doctor updatedDoctor) {
-        Doctor doctor = doctorRepository.findByEmail(email)
-                .orElseThrow(() -> new PatientNotFoundException(email));
+        Doctor doctor = getDoctorByEmail(email);
         DoctorValidator.validateEditDoctor(doctor, updatedDoctor, doctorRepository);
         UserValidator.validateEditUser(updatedDoctor.getUser(), userRepository);
         doctor.edit(updatedDoctor);

@@ -162,29 +162,4 @@ public class PatientController {
     public PatientDto editPatient(@PathVariable String email, @RequestBody PatientCreateCommand patient) {
         return patientMapper.toDto(patientService.editPatient(email, patientMapper.toEntity(patient)));
     }
-
-    @Operation(summary = "Change patient password by email")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Password has been changed",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = PatientDto.class))),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Patient not found",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorMessageDto.class))),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Internal server error",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorMessageDto.class)))})
-    @PatchMapping("/{email}")
-    public PatientDto changePassword(@PathVariable String email, @RequestBody ChangePasswordCommand command) {
-        return patientMapper.toDto(patientService.changePassword(email, command.password()));
-    }
 }

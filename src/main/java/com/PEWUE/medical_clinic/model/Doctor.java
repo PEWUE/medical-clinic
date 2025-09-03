@@ -28,8 +28,6 @@ public class Doctor {
     private Long id;
     private String firstName;
     private String lastName;
-    @Column(unique = true)
-    private String email;
     private String specialization;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
@@ -40,7 +38,6 @@ public class Doctor {
     public void edit(Doctor newData) {
         this.firstName = newData.getFirstName();
         this.lastName = newData.getLastName();
-        this.email = newData.getEmail();
         this.specialization = newData.getSpecialization();
         this.user = newData.getUser();
     }

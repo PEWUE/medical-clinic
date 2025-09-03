@@ -28,8 +28,6 @@ public class Patient {
     private String firstName;
     @Column(name = "LAST_NAME")
     private String lastName;
-    @Column(unique = true)
-    private String email;
     @Column(name = "ID_CARD_NO", unique = true)
     private String idCardNo;
     @Column(name = "PHONE_NUMBER")
@@ -43,7 +41,6 @@ public class Patient {
     public void edit(Patient newData) {
         this.firstName = newData.getFirstName();
         this.lastName = newData.getLastName();
-        this.email = newData.getEmail();
         this.idCardNo = newData.getIdCardNo();
         this.phoneNumber = newData.getPhoneNumber();
         this.birthday = newData.getBirthday();
