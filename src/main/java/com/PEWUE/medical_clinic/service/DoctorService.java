@@ -4,10 +4,12 @@ import com.PEWUE.medical_clinic.exception.DoctorNotFoundException;
 import com.PEWUE.medical_clinic.exception.PatientNotFoundException;
 import com.PEWUE.medical_clinic.exception.UserNotFoundException;
 import com.PEWUE.medical_clinic.model.Doctor;
+import com.PEWUE.medical_clinic.model.Patient;
 import com.PEWUE.medical_clinic.model.User;
 import com.PEWUE.medical_clinic.repository.DoctorRepository;
 import com.PEWUE.medical_clinic.repository.UserRepository;
 import com.PEWUE.medical_clinic.validator.DoctorValidator;
+import com.PEWUE.medical_clinic.validator.PatientValidator;
 import com.PEWUE.medical_clinic.validator.UserValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -48,7 +50,6 @@ public class DoctorService {
     public Doctor editDoctor(String email, Doctor updatedDoctor) {
         Doctor doctor = getDoctorByEmail(email);
         DoctorValidator.validateEditDoctor(doctor, updatedDoctor, doctorRepository);
-        UserValidator.validateEditUser(updatedDoctor.getUser(), userRepository);
         doctor.edit(updatedDoctor);
         return doctorRepository.save(doctor);
     }

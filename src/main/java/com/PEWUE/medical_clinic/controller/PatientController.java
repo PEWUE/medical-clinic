@@ -137,19 +137,13 @@ public class PatientController {
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Patient deleted",
+                    description = "Patient edited successfully",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = PatientDto.class))),
             @ApiResponse(
                     responseCode = "404",
                     description = "Patient not found",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorMessageDto.class))),
-            @ApiResponse(
-                    responseCode = "409",
-                    description = "Given email already exists",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class))),

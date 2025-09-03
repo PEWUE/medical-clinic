@@ -39,6 +39,5 @@ public class Doctor {
         this.firstName = newData.getFirstName();
         this.lastName = newData.getLastName();
         this.specialization = newData.getSpecialization();
-        this.user = newData.getUser();
     }
 }

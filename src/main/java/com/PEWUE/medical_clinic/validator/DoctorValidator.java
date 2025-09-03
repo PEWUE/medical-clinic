@@ -20,8 +20,7 @@ public final class DoctorValidator {
     public static void validateEditDoctor(Doctor existingDoctor, Doctor updatedDoctor, DoctorRepository doctorRepository) {
         if (updatedDoctor.getFirstName() == null ||
                 updatedDoctor.getLastName() == null ||
-                updatedDoctor.getSpecialization() == null ||
-                updatedDoctor.getUser() == null) {
+                updatedDoctor.getSpecialization() == null) {
             throw new IllegalArgumentException("Fields should not be null");
         }
     }
