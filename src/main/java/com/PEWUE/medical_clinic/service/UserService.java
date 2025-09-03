@@ -28,4 +28,12 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException(id));
         userRepository.delete(user);
     }
+
+    public User changePassword(Long id, String password) {
+        UserValidator.validatePassword(password);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(id));
+        user.setPassword(password);
+        return userRepository.save(user);
+    }
 }
