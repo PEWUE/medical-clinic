@@ -46,8 +46,7 @@ public class PatientService {
 
     public Patient editPatient(String email, Patient updatedPatient) {
         Patient patient = getPatientByEmail(email);
-        PatientValidator.validateEditPatient(patient, updatedPatient, patientRepository);
-        UserValidator.validateEditUser(updatedPatient.getUser(), userRepository);
+        PatientValidator.validateEditPatient(updatedPatient);
         patient.edit(updatedPatient);
         return patientRepository.save(patient);
     }

@@ -41,9 +41,7 @@ public class Patient {
     public void edit(Patient newData) {
         this.firstName = newData.getFirstName();
         this.lastName = newData.getLastName();
-        this.idCardNo = newData.getIdCardNo();
         this.phoneNumber = newData.getPhoneNumber();
         this.birthday = newData.getBirthday();
-        this.user = newData.getUser();
     }
 }

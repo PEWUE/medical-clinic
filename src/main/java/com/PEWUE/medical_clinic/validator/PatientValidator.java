@@ -17,19 +17,17 @@ public final class PatientValidator {
                 patient.getUser() == null) {
             throw new IllegalArgumentException("Fields should not be null");
         }
+        if (patientRepository.findByIdCardNo(patient.getIdCardNo()).isPresent()) {
+            throw new IllegalArgumentException("ID card number already exists");
+        }
     }
 
-    public static void validateEditPatient(Patient existingPatient, Patient updatedPatient, PatientRepository patientRepository) {
+    public static void validateEditPatient(Patient updatedPatient) {
         if (updatedPatient.getFirstName() == null ||
                 updatedPatient.getLastName() == null ||
-                updatedPatient.getIdCardNo() == null ||
                 updatedPatient.getPhoneNumber() == null ||
-                updatedPatient.getBirthday() == null ||
-                updatedPatient.getUser() == null) {
+                updatedPatient.getBirthday() == null) {
             throw new IllegalArgumentException("Fields should not be null");
-        }
-        if (!existingPatient.getIdCardNo().equals(updatedPatient.getIdCardNo())) {
-            throw new IllegalArgumentException("Changing the ID card number is not allowed");
         }
     }
 }

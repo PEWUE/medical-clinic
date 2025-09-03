@@ -1,6 +1,7 @@
 package com.PEWUE.medical_clinic.controller;
 
 import com.PEWUE.medical_clinic.command.PatientCreateCommand;
+import com.PEWUE.medical_clinic.command.PatientEditCommand;
 import com.PEWUE.medical_clinic.dto.ErrorMessageDto;
 import com.PEWUE.medical_clinic.dto.PatientDto;
 import com.PEWUE.medical_clinic.mapper.PatientMapper;
@@ -159,7 +160,8 @@ public class PatientController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @PutMapping("/{email}")
-    public PatientDto editPatient(@PathVariable String email, @RequestBody PatientCreateCommand patient) {
-        return patientMapper.toDto(patientService.editPatient(email, patientMapper.toEntity(patient)));
+    public PatientDto editPatient(@PathVariable String email, @RequestBody PatientEditCommand patientEditCommand) {
+        Patient patient = patientMapper.toEntity(patientEditCommand);
+        return patientMapper.toDto(patientService.editPatient(email, patient));
     }
 }
