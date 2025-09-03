@@ -1,10 +1,10 @@
 package com.PEWUE.medical_clinic.controller;
 
-import com.PEWUE.medical_clinic.command.ChangePasswordCommand;
 import com.PEWUE.medical_clinic.command.PatientCreateCommand;
 import com.PEWUE.medical_clinic.dto.ErrorMessageDto;
 import com.PEWUE.medical_clinic.dto.PatientDto;
 import com.PEWUE.medical_clinic.mapper.PatientMapper;
+import com.PEWUE.medical_clinic.model.Patient;
 import com.PEWUE.medical_clinic.service.PatientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -17,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -105,8 +104,9 @@ public class PatientController {
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public PatientDto addPatient(@RequestBody PatientCreateCommand patient) {
-        return patientMapper.toDto(patientService.addPatient(patientMapper.toEntity(patient)));
+    public PatientDto addPatient(@RequestBody PatientCreateCommand patientCreateCommand) {
+        Patient patient = patientMapper.toEntity(patientCreateCommand);
+        return patientMapper.toDto(patientService.addPatient(patient));
     }
 
     @Operation(summary = "Delete patient by email")
