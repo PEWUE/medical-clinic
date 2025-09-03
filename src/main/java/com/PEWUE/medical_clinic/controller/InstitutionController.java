@@ -1,11 +1,14 @@
 package com.PEWUE.medical_clinic.controller;
 
 import com.PEWUE.medical_clinic.command.DoctorCreateCommand;
+import com.PEWUE.medical_clinic.command.InstitutionCreateCommand;
 import com.PEWUE.medical_clinic.dto.DoctorDto;
 import com.PEWUE.medical_clinic.dto.ErrorMessageDto;
-import com.PEWUE.medical_clinic.mapper.DoctorMapper;
+import com.PEWUE.medical_clinic.dto.InstitutionDto;
+import com.PEWUE.medical_clinic.mapper.InstitutionMapper;
 import com.PEWUE.medical_clinic.model.Doctor;
-import com.PEWUE.medical_clinic.service.DoctorService;
+import com.PEWUE.medical_clinic.model.Institution;
+import com.PEWUE.medical_clinic.service.InstitutionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,21 +31,20 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/doctors")
-@Tag(name = "Doctors operation")
-public class DoctorController {
-    private final DoctorService doctorService;
-    private final DoctorMapper doctorMapper;
+@RequestMapping("/institutions")
+@Tag(name = "Institutions operations")
+public class InstitutionController {
+    private final InstitutionService institutionService;
+    private final InstitutionMapper institutionMapper;
 
-
-    @Operation(summary = "Get all doctors")
+    @Operation(summary = "Get all institutions")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "List of doctors returned",
+                    description = "List of institutions returned",
                     content = @Content(
                             mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = DoctorDto.class)))),
+                            array = @ArraySchema(schema = @Schema(implementation = InstitutionDto.class)))),
             @ApiResponse(
                     responseCode = "500",
                     description = "Internal server error",
@@ -50,23 +52,23 @@ public class DoctorController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @GetMapping
-    public List<DoctorDto> getDoctors() {
-        return doctorService.getAllDoctors().stream()
-                .map(doctorMapper::toDto)
+    public List<InstitutionDto> getInstitutions() {
+        return institutionService.getAllInstitutions().stream()
+                .map(institutionMapper::toDto)
                 .toList();
     }
 
-    @Operation(summary = "Add doctor to collection")
+    @Operation(summary = "Add institution to collection")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "201",
-                    description = "Doctor created",
+                    description = "Institution created",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = DoctorDto.class))),
+                            schema = @Schema(implementation = InstitutionDto.class))),
             @ApiResponse(
                     responseCode = "409",
-                    description = "Given email already exists",
+                    description = "Given institution name already exists",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class))),
@@ -78,19 +80,19 @@ public class DoctorController {
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public DoctorDto addDoctor(@RequestBody DoctorCreateCommand doctorCreateCommand) {
-        Doctor doctor = doctorMapper.toEntity(doctorCreateCommand);
-        return doctorMapper.toDto(doctorService.addDoctor(doctor));
+    public InstitutionDto addInstitution(@RequestBody InstitutionCreateCommand institutionCreateCommand) {
+        Institution institution = institutionMapper.toEntity(institutionCreateCommand);
+        return institutionMapper.toDto(institutionService.addInstitution(institution));
     }
 
-    @Operation(summary = "Delete doctor by email")
+    @Operation(summary = "Delete institution by id")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "204",
-                    description = "Doctor deleted"),
+                    description = "Institution deleted"),
             @ApiResponse(
                     responseCode = "404",
-                    description = "Doctor not found",
+                    description = "Institution not found",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class))),
@@ -100,9 +102,9 @@ public class DoctorController {
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
-    @DeleteMapping("/{email}")
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removeDoctor(@PathVariable String email) {
-        doctorService.removeDoctor(email);
+    public void removeInstitution(@PathVariable Long id) {
+        institutionService.removeInstitution(id);
     }
 }

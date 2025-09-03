@@ -35,7 +35,8 @@ public class DoctorService {
     }
 
     public void removeDoctor(String email) {
-        Doctor doctor = doctorRepository.findByEmail(email).orElseThrow(() -> new PatientNotFoundException(email));
+        Doctor doctor = doctorRepository.findByEmail(email)
+                .orElseThrow(() -> new PatientNotFoundException(email));
         doctorRepository.delete(doctor);
     }
 

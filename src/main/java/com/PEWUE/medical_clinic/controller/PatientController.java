@@ -92,7 +92,7 @@ public class PatientController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = PatientDto.class))),
             @ApiResponse(
-                    responseCode = "400",
+                    responseCode = "409",
                     description = "Given email already exists",
                     content = @Content(
                             mediaType = "application/json",
