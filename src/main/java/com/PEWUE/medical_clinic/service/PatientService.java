@@ -1,7 +1,9 @@
 package com.PEWUE.medical_clinic.service;
 
 import com.PEWUE.medical_clinic.exception.PatientNotFoundException;
+import com.PEWUE.medical_clinic.exception.UserNotFoundException;
 import com.PEWUE.medical_clinic.model.Patient;
+import com.PEWUE.medical_clinic.model.User;
 import com.PEWUE.medical_clinic.repository.PatientRepository;
 import com.PEWUE.medical_clinic.repository.UserRepository;
 import com.PEWUE.medical_clinic.validator.PatientValidator;
@@ -28,6 +30,15 @@ public class PatientService {
 
     public Patient addPatient(Patient patient) {
         PatientValidator.validateCreatePatient(patient, patientRepository);
+        if (patient.getUser() != null) {
+            if (patient.getUser().getId() != null) {
+                User existingUser = userRepository.findById(patient.getUser().getId())
+                        .orElseThrow(() -> new UserNotFoundException(patient.getUser().getId()));
+                patient.setUser(existingUser);
+            } else {
+                patient.getUser().setId(null);
+            }
+        }
         UserValidator.validateCreateUser(patient.getUser(), userRepository);
         return patientRepository.save(patient);
     }

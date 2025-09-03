@@ -9,11 +9,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class UserValidator {
     public static void validateCreateUser(User user, UserRepository userRepository) {
-        if (user.getUsername() == null || user.getPassword() == null) {
+        if (user.getId() == null && (user.getUsername() == null || user.getPassword() == null)) {
             throw new IllegalArgumentException("Fields should not be null");
         }
-        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+        if (user.getId() == null && userRepository.findByUsername(user.getUsername()).isPresent()) {
             throw new UsernameAlreadyExistsException(user.getUsername());
+        }
+        if (user.getId() != null && userRepository.findById(user.getId()).isEmpty()) {
+            throw new IllegalArgumentException("Patient with given id does not exist");
         }
     }
 
