@@ -29,7 +29,8 @@ public final class PatientValidator {
                 updatedPatient.getEmail() == null ||
                 updatedPatient.getIdCardNo() == null ||
                 updatedPatient.getPhoneNumber() == null ||
-                updatedPatient.getBirthday() == null) {
+                updatedPatient.getBirthday() == null ||
+                updatedPatient.getUser() == null) {
             throw new IllegalArgumentException("Fields should not be null");
         }
         if (!existingPatient.getEmail().equals(updatedPatient.getEmail()) && patientRepository.findByEmail(updatedPatient.getEmail()).isPresent()) {

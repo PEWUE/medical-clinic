@@ -5,7 +5,6 @@ import com.PEWUE.medical_clinic.command.PatientCreateCommand;
 import com.PEWUE.medical_clinic.dto.ErrorMessageDto;
 import com.PEWUE.medical_clinic.dto.PatientDto;
 import com.PEWUE.medical_clinic.mapper.PatientMapper;
-import com.PEWUE.medical_clinic.model.Patient;
 import com.PEWUE.medical_clinic.service.PatientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
