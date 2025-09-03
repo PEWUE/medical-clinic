@@ -30,14 +30,10 @@ public class PatientService {
 
     public Patient addPatient(Patient patient) {
         PatientValidator.validateCreatePatient(patient, patientRepository);
-        if (patient.getUser() != null) {
-            if (patient.getUser().getId() != null) {
-                User existingUser = userRepository.findById(patient.getUser().getId())
-                        .orElseThrow(() -> new UserNotFoundException(patient.getUser().getId()));
-                patient.setUser(existingUser);
-            } else {
-                patient.getUser().setId(null);
-            }
+        if (patient.getUser() != null && patient.getUser().getId() != null) {
+            User existingUser = userRepository.findById(patient.getUser().getId())
+                    .orElseThrow(() -> new UserNotFoundException(patient.getUser().getId()));
+            patient.setUser(existingUser);
         }
         UserValidator.validateCreateUser(patient.getUser(), userRepository);
         return patientRepository.save(patient);
