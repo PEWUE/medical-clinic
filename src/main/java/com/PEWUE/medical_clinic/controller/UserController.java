@@ -1,10 +1,8 @@
 package com.PEWUE.medical_clinic.controller;
 
 import com.PEWUE.medical_clinic.command.ChangePasswordCommand;
-import com.PEWUE.medical_clinic.command.PatientCreateCommand;
 import com.PEWUE.medical_clinic.command.UserCreateCommand;
 import com.PEWUE.medical_clinic.dto.ErrorMessageDto;
-import com.PEWUE.medical_clinic.dto.PatientDto;
 import com.PEWUE.medical_clinic.dto.UserDto;
 import com.PEWUE.medical_clinic.mapper.UserMapper;
 import com.PEWUE.medical_clinic.model.User;
@@ -54,8 +52,8 @@ public class UserController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @GetMapping
-    public List<UserDto> getUsers() {
-        return userService.getAllUsers().stream()
+    public List<UserDto> findAll() {
+        return userService.findAll().stream()
                 .map(userMapper::toDto)
                 .collect(Collectors.toList());
     }
@@ -69,14 +67,14 @@ public class UserController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = UserDto.class))),
             @ApiResponse(
-                    responseCode = "409",
-                    description = "Given email already exists",
+                    responseCode = "400",
+                    description = "Fields should not be null",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class))),
             @ApiResponse(
                     responseCode = "409",
-                    description = "Given username already exists",
+                    description = "Given email or username already exists",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class))),
@@ -88,9 +86,9 @@ public class UserController {
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDto addUser(@RequestBody UserCreateCommand userCreateCommand) {
+    public UserDto add(@RequestBody UserCreateCommand userCreateCommand) {
         User user = userMapper.toEntity(userCreateCommand);
-        return userMapper.toDto(userService.addUser(user));
+        return userMapper.toDto(userService.add(user));
     }
 
     @Operation(summary = "Delete user by id")
@@ -112,8 +110,8 @@ public class UserController {
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removeUser(@PathVariable Long id) {
-        userService.removeUser(id);
+    public void delete(@PathVariable Long id) {
+        userService.delete(id);
     }
 
     @Operation(summary = "Change user password")
@@ -124,6 +122,12 @@ public class UserController {
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = UserDto.class))),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Fields should not be null",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessageDto.class))),
             @ApiResponse(
                     responseCode = "404",
                     description = "User not found",

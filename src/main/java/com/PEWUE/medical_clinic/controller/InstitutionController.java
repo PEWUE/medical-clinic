@@ -1,12 +1,9 @@
 package com.PEWUE.medical_clinic.controller;
 
-import com.PEWUE.medical_clinic.command.DoctorCreateCommand;
 import com.PEWUE.medical_clinic.command.InstitutionCreateCommand;
-import com.PEWUE.medical_clinic.dto.DoctorDto;
 import com.PEWUE.medical_clinic.dto.ErrorMessageDto;
 import com.PEWUE.medical_clinic.dto.InstitutionDto;
 import com.PEWUE.medical_clinic.mapper.InstitutionMapper;
-import com.PEWUE.medical_clinic.model.Doctor;
 import com.PEWUE.medical_clinic.model.Institution;
 import com.PEWUE.medical_clinic.service.InstitutionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -53,8 +50,8 @@ public class InstitutionController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @GetMapping
-    public List<InstitutionDto> getInstitutions() {
-        return institutionService.getAllInstitutions().stream()
+    public List<InstitutionDto> findAll() {
+        return institutionService.findAll().stream()
                 .map(institutionMapper::toDto)
                 .toList();
     }
@@ -67,6 +64,12 @@ public class InstitutionController {
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = InstitutionDto.class))),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Fields should not be null",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessageDto.class))),
             @ApiResponse(
                     responseCode = "409",
                     description = "Given institution name already exists",
@@ -81,9 +84,9 @@ public class InstitutionController {
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public InstitutionDto addInstitution(@RequestBody InstitutionCreateCommand institutionCreateCommand) {
+    public InstitutionDto add(@RequestBody InstitutionCreateCommand institutionCreateCommand) {
         Institution institution = institutionMapper.toEntity(institutionCreateCommand);
-        return institutionMapper.toDto(institutionService.addInstitution(institution));
+        return institutionMapper.toDto(institutionService.add(institution));
     }
 
     @Operation(summary = "Delete institution by id")
@@ -105,12 +108,32 @@ public class InstitutionController {
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removeInstitution(@PathVariable Long id) {
-        institutionService.removeInstitution(id);
+    public void delete(@PathVariable Long id) {
+        institutionService.delete(id);
     }
 
-    @PutMapping("/{doctorId}/{institutionId}")
-    public InstitutionDto addDoctorToInstitution(@PathVariable Long doctorId, @PathVariable Long institutionId) {
-        return institutionMapper.toDto(institutionService.addDoctorToInstitution(doctorId, institutionId));
+    @Operation(summary = "Add doctor to institution")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Doctor added to institution",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = InstitutionDto.class))),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Institution or doctor not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessageDto.class))),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessageDto.class)))})
+    @PutMapping("/{institutionId}/doctors/{doctorId}")
+    public InstitutionDto assignDoctorToInstitution(@PathVariable Long doctorId, @PathVariable Long institutionId) {
+        return institutionMapper.toDto(institutionService.assignDoctorToInstitution(doctorId, institutionId));
     }
 }

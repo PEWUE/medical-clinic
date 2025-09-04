@@ -14,16 +14,16 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
 
-    public List<User> getAllUsers() {
+    public List<User> findAll() {
         return userRepository.findAll();
     }
 
-    public User addUser(User user) {
+    public User add(User user) {
         UserValidator.validateCreateUser(user, userRepository);
         return userRepository.save(user);
     }
 
-    public void removeUser(Long id) {
+    public void delete(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(id));
         userRepository.delete(user);

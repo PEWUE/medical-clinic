@@ -1,6 +1,5 @@
 package com.PEWUE.medical_clinic.service;
 
-import com.PEWUE.medical_clinic.dto.InstitutionDto;
 import com.PEWUE.medical_clinic.exception.DoctorNotFoundException;
 import com.PEWUE.medical_clinic.exception.IntitutionNotFoundException;
 import com.PEWUE.medical_clinic.model.Doctor;
@@ -19,22 +18,22 @@ public class InstitutionService {
     private final InstitutionRepository institutionRepository;
     private final DoctorRepository doctorRepository;
 
-    public List<Institution> getAllInstitutions() {
+    public List<Institution> findAll() {
         return institutionRepository.findAll();
     }
 
-    public Institution addInstitution(Institution institution) {
+    public Institution add(Institution institution) {
         InstitutionValidator.validateCreateInstitution(institution, institutionRepository);
         return institutionRepository.save(institution);
     }
 
-    public void removeInstitution(Long id) {
+    public void delete(Long id) {
         Institution institution = institutionRepository.findById(id)
                 .orElseThrow(() -> new IntitutionNotFoundException(id));
         institutionRepository.delete(institution);
     }
 
-    public Institution addDoctorToInstitution(Long doctorId, Long institutionId) {
+    public Institution assignDoctorToInstitution(Long doctorId, Long institutionId) {
         Doctor doctor = doctorRepository.findById(doctorId)
                 .orElseThrow(() -> new DoctorNotFoundException(doctorId));
         Institution institution = institutionRepository.findById(institutionId)

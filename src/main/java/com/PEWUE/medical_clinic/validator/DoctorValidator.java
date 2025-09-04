@@ -1,27 +1,27 @@
 package com.PEWUE.medical_clinic.validator;
 
-import com.PEWUE.medical_clinic.exception.EmailAlreadyExistsException;
+import com.PEWUE.medical_clinic.exception.FieldsShouldNotBeNullException;
 import com.PEWUE.medical_clinic.model.Doctor;
-import com.PEWUE.medical_clinic.repository.DoctorRepository;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DoctorValidator {
-    public static void validateCreateDoctor(Doctor doctor, DoctorRepository doctorRepository) {
+
+    public static void validateCreateDoctor(Doctor doctor) {
         if (doctor.getFirstName() == null ||
                 doctor.getLastName() == null ||
                 doctor.getSpecialization() == null ||
                 doctor.getUser() == null) {
-            throw new IllegalArgumentException("Fields should not be null");
+            throw new FieldsShouldNotBeNullException();
         }
     }
 
-    public static void validateEditDoctor(Doctor existingDoctor, Doctor updatedDoctor, DoctorRepository doctorRepository) {
+    public static void validateEditDoctor(Doctor updatedDoctor) {
         if (updatedDoctor.getFirstName() == null ||
                 updatedDoctor.getLastName() == null ||
                 updatedDoctor.getSpecialization() == null) {
-            throw new IllegalArgumentException("Fields should not be null");
+            throw new FieldsShouldNotBeNullException();
         }
     }
 }

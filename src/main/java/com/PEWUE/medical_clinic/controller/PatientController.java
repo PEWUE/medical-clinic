@@ -52,8 +52,8 @@ public class PatientController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @GetMapping
-    public List<PatientDto> getPatients() {
-        return patientService.getAllPatients().stream()
+    public List<PatientDto> findAll() {
+        return patientService.findAll().stream()
                 .map(patientMapper::toDto)
                 .collect(Collectors.toList());
     }
@@ -79,8 +79,8 @@ public class PatientController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @GetMapping("/{email}")
-    public PatientDto getPatientByEmail(@PathVariable String email) {
-        return patientMapper.toDto(patientService.getPatientByEmail(email));
+    public PatientDto find(@PathVariable String email) {
+        return patientMapper.toDto(patientService.find(email));
     }
 
     @Operation(summary = "Add patient to collection")
@@ -92,8 +92,20 @@ public class PatientController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = PatientDto.class))),
             @ApiResponse(
+                    responseCode = "400",
+                    description = "Fields should not be null",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessageDto.class))),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User with given id not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessageDto.class))),
+            @ApiResponse(
                     responseCode = "409",
-                    description = "Given email already exists",
+                    description = "Given email or id card number already exists",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class))),
@@ -105,9 +117,9 @@ public class PatientController {
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public PatientDto addPatient(@RequestBody PatientCreateCommand patientCreateCommand) {
+    public PatientDto add(@RequestBody PatientCreateCommand patientCreateCommand) {
         Patient patient = patientMapper.toEntity(patientCreateCommand);
-        return patientMapper.toDto(patientService.addPatient(patient));
+        return patientMapper.toDto(patientService.add(patient));
     }
 
     @Operation(summary = "Delete patient by email")
@@ -129,8 +141,8 @@ public class PatientController {
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @DeleteMapping("/{email}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removePatient(@PathVariable String email) {
-        patientService.removePatient(email);
+    public void delete(@PathVariable String email) {
+        patientService.delete(email);
     }
 
     @Operation(summary = "Edit patient by email")
@@ -141,6 +153,12 @@ public class PatientController {
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = PatientDto.class))),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Fields should not be null",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessageDto.class))),
             @ApiResponse(
                     responseCode = "404",
                     description = "Patient not found",
@@ -154,8 +172,8 @@ public class PatientController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @PutMapping("/{email}")
-    public PatientDto editPatient(@PathVariable String email, @RequestBody PatientEditCommand patientEditCommand) {
+    public PatientDto edit(@PathVariable String email, @RequestBody PatientEditCommand patientEditCommand) {
         Patient patient = patientMapper.toEntity(patientEditCommand);
-        return patientMapper.toDto(patientService.editPatient(email, patient));
+        return patientMapper.toDto(patientService.edit(email, patient));
     }
 }

@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
     @ExceptionHandler(value = MedClinicException.class)
     protected ResponseEntity<ErrorMessageDto> handleMedClinicException(MedClinicException ex, HttpServletRequest request) {
         ErrorMessageDto error = ErrorMessageDto.builder()

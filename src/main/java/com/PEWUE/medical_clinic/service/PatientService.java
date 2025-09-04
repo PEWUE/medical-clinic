@@ -19,35 +19,39 @@ public class PatientService {
     private final PatientRepository patientRepository;
     private final UserRepository userRepository;
 
-    public List<Patient> getAllPatients() {
+    public List<Patient> findAll() {
         return patientRepository.findAll();
     }
 
-    public Patient getPatientByEmail(String email) {
+    public Patient find(String email) {
         return patientRepository.findByUserEmail(email)
                 .orElseThrow(() -> new PatientNotFoundException(email));
     }
 
-    public Patient addPatient(Patient patient) {
+    public Patient add(Patient patient) {
         PatientValidator.validateCreatePatient(patient, patientRepository);
+        assignUserToPatient(patient);
+        UserValidator.validateCreateUser(patient.getUser(), userRepository);
+        return patientRepository.save(patient);
+    }
+
+    public void delete(String email) {
+        Patient patient = find(email);
+        patientRepository.delete(patient);
+    }
+
+    public Patient edit(String email, Patient updatedPatient) {
+        Patient patient = find(email);
+        PatientValidator.validateEditPatient(updatedPatient);
+        patient.edit(updatedPatient);
+        return patientRepository.save(patient);
+    }
+
+    private void assignUserToPatient(Patient patient) {
         if (patient.getUser() != null && patient.getUser().getId() != null) {
             User existingUser = userRepository.findById(patient.getUser().getId())
                     .orElseThrow(() -> new UserNotFoundException(patient.getUser().getId()));
             patient.setUser(existingUser);
         }
-        UserValidator.validateCreateUser(patient.getUser(), userRepository);
-        return patientRepository.save(patient);
-    }
-
-    public void removePatient(String email) {
-        Patient patient = getPatientByEmail(email);
-        patientRepository.delete(patient);
-    }
-
-    public Patient editPatient(String email, Patient updatedPatient) {
-        Patient patient = getPatientByEmail(email);
-        PatientValidator.validateEditPatient(updatedPatient);
-        patient.edit(updatedPatient);
-        return patientRepository.save(patient);
     }
 }

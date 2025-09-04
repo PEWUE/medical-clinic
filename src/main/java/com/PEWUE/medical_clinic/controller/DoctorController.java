@@ -2,13 +2,10 @@ package com.PEWUE.medical_clinic.controller;
 
 import com.PEWUE.medical_clinic.command.DoctorCreateCommand;
 import com.PEWUE.medical_clinic.command.DoctorEditCommand;
-import com.PEWUE.medical_clinic.command.PatientEditCommand;
 import com.PEWUE.medical_clinic.dto.DoctorDto;
 import com.PEWUE.medical_clinic.dto.ErrorMessageDto;
-import com.PEWUE.medical_clinic.dto.PatientDto;
 import com.PEWUE.medical_clinic.mapper.DoctorMapper;
 import com.PEWUE.medical_clinic.model.Doctor;
-import com.PEWUE.medical_clinic.model.Patient;
 import com.PEWUE.medical_clinic.service.DoctorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -39,7 +36,6 @@ public class DoctorController {
     private final DoctorService doctorService;
     private final DoctorMapper doctorMapper;
 
-
     @Operation(summary = "Get all doctors")
     @ApiResponses(value = {
             @ApiResponse(
@@ -55,8 +51,8 @@ public class DoctorController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @GetMapping
-    public List<DoctorDto> getDoctors() {
-        return doctorService.getAllDoctors().stream()
+    public List<DoctorDto> findAll() {
+        return doctorService.findAll().stream()
                 .map(doctorMapper::toDto)
                 .toList();
     }
@@ -69,6 +65,18 @@ public class DoctorController {
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = DoctorDto.class))),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Fields should not be null",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessageDto.class))),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "User with given id not found",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessageDto.class))),
             @ApiResponse(
                     responseCode = "409",
                     description = "Given email already exists",
@@ -83,9 +91,9 @@ public class DoctorController {
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public DoctorDto addDoctor(@RequestBody DoctorCreateCommand doctorCreateCommand) {
+    public DoctorDto add(@RequestBody DoctorCreateCommand doctorCreateCommand) {
         Doctor doctor = doctorMapper.toEntity(doctorCreateCommand);
-        return doctorMapper.toDto(doctorService.addDoctor(doctor));
+        return doctorMapper.toDto(doctorService.add(doctor));
     }
 
     @Operation(summary = "Delete doctor by email")
@@ -107,8 +115,8 @@ public class DoctorController {
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @DeleteMapping("/{email}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removeDoctor(@PathVariable String email) {
-        doctorService.removeDoctor(email);
+    public void delete(@PathVariable String email) {
+        doctorService.delete(email);
     }
 
     @Operation(summary = "Edit doctor by email")
@@ -119,6 +127,12 @@ public class DoctorController {
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = DoctorDto.class))),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Fields should not be null",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessageDto.class))),
             @ApiResponse(
                     responseCode = "404",
                     description = "Doctor not found",
@@ -134,6 +148,6 @@ public class DoctorController {
     @PutMapping("/{email}")
     public DoctorDto editDoctor(@PathVariable String email, @RequestBody DoctorEditCommand doctorEditCommand) {
         Doctor doctor = doctorMapper.toEntity(doctorEditCommand);
-        return doctorMapper.toDto(doctorService.editDoctor(email, doctor));
+        return doctorMapper.toDto(doctorService.edit(email, doctor));
     }
 }
