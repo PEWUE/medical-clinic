@@ -1,0 +1,57 @@
+package com.PEWUE.medical_clinic.service;
+
+import com.PEWUE.medical_clinic.exception.DoctorNotFoundException;
+import com.PEWUE.medical_clinic.exception.UserNotFoundException;
+import com.PEWUE.medical_clinic.model.Doctor;
+import com.PEWUE.medical_clinic.model.User;
+import com.PEWUE.medical_clinic.repository.DoctorRepository;
+import com.PEWUE.medical_clinic.repository.UserRepository;
+import com.PEWUE.medical_clinic.validator.DoctorValidator;
+import com.PEWUE.medical_clinic.validator.UserValidator;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class DoctorService {
+    private final DoctorRepository doctorRepository;
+    private final UserRepository userRepository;
+
+    public List<Doctor> findAll() {
+        return doctorRepository.findAll();
+    }
+
+    public Doctor find(String email) {
+        return doctorRepository.findByUserEmail(email)
+                .orElseThrow(() -> new DoctorNotFoundException(email));
+    }
+
+    public Doctor add(Doctor doctor) {
+        DoctorValidator.validateCreateDoctor(doctor);
+        assignUserToDoctor(doctor);
+        UserValidator.validateCreateUser(doctor.getUser(),userRepository);
+        return doctorRepository.save(doctor);
+    }
+
+    public void delete(String email) {
+        Doctor doctor = find(email);
+        doctorRepository.delete(doctor);
+    }
+
+    public Doctor edit(String email, Doctor updatedDoctor) {
+        Doctor doctor = find(email);
+        DoctorValidator.validateEditDoctor(updatedDoctor);
+        doctor.edit(updatedDoctor);
+        return doctorRepository.save(doctor);
+    }
+
+    private void assignUserToDoctor(Doctor doctor) {
+        if (doctor.getUser() != null && doctor.getUser().getId() != null) {
+            User existingUser = userRepository.findById(doctor.getUser().getId())
+                    .orElseThrow(() -> new UserNotFoundException(doctor.getUser().getId()));
+            doctor.setUser(existingUser);
+        }
+    }
+}
