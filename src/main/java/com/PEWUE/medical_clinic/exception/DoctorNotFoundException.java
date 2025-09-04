@@ -6,4 +6,8 @@ public class DoctorNotFoundException extends MedClinicException {
     public DoctorNotFoundException(String email) {
       super("Doctor with email " + email + " not found", HttpStatus.NOT_FOUND);
     }
+
+    public DoctorNotFoundException(Long id) {
+        super("Doctor with id " + id + " not found", HttpStatus.NOT_FOUND);
+    }
 }

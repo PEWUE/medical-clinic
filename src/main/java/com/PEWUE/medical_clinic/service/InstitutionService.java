@@ -1,8 +1,11 @@
 package com.PEWUE.medical_clinic.service;
 
+import com.PEWUE.medical_clinic.dto.InstitutionDto;
+import com.PEWUE.medical_clinic.exception.DoctorNotFoundException;
 import com.PEWUE.medical_clinic.exception.IntitutionNotFoundException;
 import com.PEWUE.medical_clinic.model.Doctor;
 import com.PEWUE.medical_clinic.model.Institution;
+import com.PEWUE.medical_clinic.repository.DoctorRepository;
 import com.PEWUE.medical_clinic.repository.InstitutionRepository;
 import com.PEWUE.medical_clinic.validator.InstitutionValidator;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class InstitutionService {
     private final InstitutionRepository institutionRepository;
+    private final DoctorRepository doctorRepository;
 
     public List<Institution> getAllInstitutions() {
         return institutionRepository.findAll();
@@ -28,5 +32,14 @@ public class InstitutionService {
         Institution institution = institutionRepository.findById(id)
                 .orElseThrow(() -> new IntitutionNotFoundException(id));
         institutionRepository.delete(institution);
+    }
+
+    public Institution addDoctorToInstitution(Long doctorId, Long institutionId) {
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new DoctorNotFoundException(doctorId));
+        Institution institution = institutionRepository.findById(institutionId)
+                .orElseThrow(()-> new IntitutionNotFoundException(institutionId));
+        institution.getDoctors().add(doctor);
+        return institutionRepository.save(institution);
     }
 }
