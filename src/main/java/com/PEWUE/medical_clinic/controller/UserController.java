@@ -91,29 +91,6 @@ public class UserController {
         return userMapper.toDto(userService.add(user));
     }
 
-    @Operation(summary = "Delete user by id")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "204",
-                    description = "User deleted"),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "User not found",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorMessageDto.class))),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Internal server error",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorMessageDto.class)))})
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
-        userService.delete(id);
-    }
-
     @Operation(summary = "Change user password")
     @ApiResponses(value = {
             @ApiResponse(

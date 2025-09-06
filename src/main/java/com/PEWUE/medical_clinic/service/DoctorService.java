@@ -8,6 +8,7 @@ import com.PEWUE.medical_clinic.repository.DoctorRepository;
 import com.PEWUE.medical_clinic.repository.UserRepository;
 import com.PEWUE.medical_clinic.validator.DoctorValidator;
 import com.PEWUE.medical_clinic.validator.UserValidator;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +29,7 @@ public class DoctorService {
                 .orElseThrow(() -> new DoctorNotFoundException(email));
     }
 
+    @Transactional
     public Doctor add(Doctor doctor) {
         DoctorValidator.validateCreateDoctor(doctor);
         assignUserToDoctor(doctor);
@@ -35,11 +37,13 @@ public class DoctorService {
         return doctorRepository.save(doctor);
     }
 
+    @Transactional
     public void delete(String email) {
         Doctor doctor = find(email);
         doctorRepository.delete(doctor);
     }
 
+    @Transactional
     public Doctor edit(String email, Doctor updatedDoctor) {
         Doctor doctor = find(email);
         DoctorValidator.validateEditDoctor(updatedDoctor);
