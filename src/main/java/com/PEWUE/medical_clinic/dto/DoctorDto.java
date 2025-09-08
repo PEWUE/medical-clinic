@@ -8,5 +8,7 @@ public record DoctorDto(
         String lastName,
         String specialization,
         UserDto user,
-        List<Long> institutionsIds) {
+        List<Long> institutionsIds,
+        List<Long> appointmentsIds
+) {
 }
