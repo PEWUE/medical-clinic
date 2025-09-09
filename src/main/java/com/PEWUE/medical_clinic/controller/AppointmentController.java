@@ -2,7 +2,6 @@ package com.PEWUE.medical_clinic.controller;
 
 import com.PEWUE.medical_clinic.command.AppointmentCreateCommand;
 import com.PEWUE.medical_clinic.dto.AppointmentDto;
-import com.PEWUE.medical_clinic.dto.DoctorDto;
 import com.PEWUE.medical_clinic.dto.ErrorMessageDto;
 import com.PEWUE.medical_clinic.mapper.AppointmentMapper;
 import com.PEWUE.medical_clinic.service.AppointmentService;
@@ -35,7 +34,7 @@ public class AppointmentController {
     private final AppointmentService appointmentService;
     private final AppointmentMapper appointmentMapper;
 
-    @Operation(summary = "Get all appointments")
+    @Operation(summary = "Get appointments list")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
@@ -50,62 +49,9 @@ public class AppointmentController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @GetMapping
-    public List<AppointmentDto> findAll() {
-        return appointmentService.findAll().stream()
-                .map(appointmentMapper::toDto)
-                .toList();
-    }
-
-    @Operation(summary = "Get all appointments for a specific doctor")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Successful retrieval of the list of appointments",
-                    content = @Content(
-                            mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = AppointmentDto.class)))),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Doctor with given ID not found",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorMessageDto.class))),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Internal server error",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorMessageDto.class)))})
-    @GetMapping("/doctor")
-    public List<AppointmentDto> findDoctorAppointments(@RequestParam Long doctorId) {
-        return appointmentService.findAllForDoctor(doctorId).stream()
-                .map(appointmentMapper::toDto)
-                .toList();
-    }
-
-    @Operation(summary = "Get all appointments for a specific patient")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Successful retrieval of the list of appointments",
-                    content = @Content(
-                            mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = AppointmentDto.class)))),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Patient with given ID not found",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorMessageDto.class))),
-            @ApiResponse(
-                    responseCode = "500",
-                    description = "Internal server error",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorMessageDto.class)))})
-    @GetMapping("/patient")
-    public List<AppointmentDto> findPatientAppointments(@RequestParam Long patientId) {
-        return appointmentService.findAllForPatient(patientId).stream()
+    public List<AppointmentDto> find(@RequestParam(required = false) Long doctorId,
+                                     @RequestParam(required = false) Long patientId) {
+        return appointmentService.find(doctorId, patientId).stream()
                 .map(appointmentMapper::toDto)
                 .toList();
     }

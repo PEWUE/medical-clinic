@@ -24,8 +24,16 @@ public class AppointmentService {
     private final DoctorRepository doctorRepository;
     private final PatientRepository patientRepository;
 
-    public List<Appointment> findAll() {
-        return appointmentRepository.findAll();
+    public List<Appointment> find(Long doctorId, Long patientId) {
+        if (doctorId != null && patientId != null) {
+            return appointmentRepository.findByDoctorIdAndPatientId(doctorId, patientId);
+        } else if (doctorId != null) {
+            return appointmentRepository.findByDoctorId(doctorId);
+        } else if (patientId != null) {
+            return appointmentRepository.findByPatientId(patientId);
+        } else {
+            return appointmentRepository.findAll();
+        }
     }
 
     @Transactional
