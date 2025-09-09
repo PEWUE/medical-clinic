@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class AppointmentValidator {
@@ -26,8 +27,13 @@ public final class AppointmentValidator {
             throw new InvalidAppointmentTimeException("Appointment times must be aligned to 15-minute intervals");
         }
 
-        if (appointmentRepository.existsByDoctorIdAndTimeRange(appointment.getDoctor().getId(), appointment.getStartTime(), appointment.getEndTime())) {
-            throw new AppointmentOverlapException("The appointment time overlaps with an existing appointment");
+        List<Appointment> conflicts = appointmentRepository.existsByDoctorIdAndTimeRange(
+                appointment.getDoctor().getId(),
+                appointment.getStartTime(),
+                appointment.getEndTime());
+
+        if (!conflicts.isEmpty()) {
+            throw new AppointmentOverlapException(conflicts);
         }
     }
 
@@ -40,6 +46,3 @@ public final class AppointmentValidator {
         }
     }
 }
-
-
-
