@@ -60,14 +60,5 @@ public class AppointmentService {
         appointment.setPatient(patient);
         return appointmentRepository.save(appointment);
     }
-
-    public List<Appointment> findAllForPatient(Long patientId) {
-        patientRepository.findById(patientId).orElseThrow(() -> new PatientNotFoundException(patientId));
-        return appointmentRepository.findByPatientId(patientId);
-    }
-
-    public List<Appointment> findAllForDoctor(Long doctorId) {
-        doctorRepository.findById(doctorId).orElseThrow(() -> new DoctorNotFoundException(doctorId));
-        return appointmentRepository.findByDoctorId(doctorId);
-    }
+    
 }
