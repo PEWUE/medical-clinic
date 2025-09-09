@@ -172,8 +172,8 @@ public class AppointmentController {
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
-    @PatchMapping("/{appointmentId}/book")
-    public AppointmentDto book(@PathVariable Long appointmentId, @RequestParam Long patientId) {
-        return appointmentMapper.toDto(appointmentService.book(appointmentId,patientId));
+    @PatchMapping("/{appointmentId}/patients/{patientId}")
+    public AppointmentDto book(@PathVariable Long appointmentId, @PathVariable Long patientId) {
+        return appointmentMapper.toDto(appointmentService.book(appointmentId, patientId));
     }
 }
