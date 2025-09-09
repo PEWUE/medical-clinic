@@ -18,13 +18,13 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     List<Appointment> findByDoctorIdAndPatientId(Long doctorId, Long patientId);
 
-    @Query("SELECT CASE WHEN COUNT(a) > 0 THEN true ELSE false END FROM Appointment a " +
-            "WHERE a.doctor.id = :doctorId AND " +
-            "((:start BETWEEN a.startTime AND a.endTime) OR " +
-            "(:end BETWEEN a.startTime AND a.endTime) OR " +
-            "(a.startTime BETWEEN :start AND :end) OR " +
-            "(a.endTime BETWEEN :start AND :end))")
-    boolean existsByDoctorIdAndTimeRange(@Param("doctorId") Long doctorId,
-                                         @Param("start") LocalDateTime start,
-                                         @Param("end") LocalDateTime end);
+    @Query("""
+            select v from Appointment v
+            where v.doctor.id = :doctorId
+            and v.startTime < :endTime
+            and v.endTime > :startTime
+            """)
+    List<Appointment> existsByDoctorIdAndTimeRange(@Param("doctorId") Long doctorId,
+                                         @Param("startTime") LocalDateTime start,
+                                         @Param("endTime") LocalDateTime end);
 }
