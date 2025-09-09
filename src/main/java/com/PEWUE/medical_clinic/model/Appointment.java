@@ -1,5 +1,6 @@
 package com.PEWUE.medical_clinic.model;
 
+import com.PEWUE.medical_clinic.command.AppointmentCreateCommand;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -30,4 +31,13 @@ public class Appointment {
     private Patient patient;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+
+    public static Appointment createNewAppointment(AppointmentCreateCommand command) {
+        return Appointment.builder()
+                .startTime(command.startTime())
+                .endTime(command.endTime())
+                .build();
+    }
 }
+
+

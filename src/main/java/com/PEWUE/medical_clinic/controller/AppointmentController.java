@@ -85,11 +85,7 @@ public class AppointmentController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public AppointmentDto add(@RequestBody AppointmentCreateCommand appointmentCreateCommand) {
-        return appointmentMapper.toDto(appointmentService.add(
-                appointmentCreateCommand.doctorId(),
-                appointmentCreateCommand.startTime(),
-                appointmentCreateCommand.endTime())
-        );
+        return appointmentMapper.toDto(appointmentService.add(appointmentCreateCommand));
     }
 
     @Operation(summary = "Book an available appointment slot by assigning a patient")

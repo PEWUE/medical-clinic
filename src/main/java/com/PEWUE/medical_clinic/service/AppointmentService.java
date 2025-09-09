@@ -1,5 +1,6 @@
 package com.PEWUE.medical_clinic.service;
 
+import com.PEWUE.medical_clinic.command.AppointmentCreateCommand;
 import com.PEWUE.medical_clinic.exception.AppointmentNotFoundException;
 import com.PEWUE.medical_clinic.exception.DoctorNotFoundException;
 import com.PEWUE.medical_clinic.exception.PatientNotFoundException;
@@ -14,7 +15,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -37,15 +37,11 @@ public class AppointmentService {
     }
 
     @Transactional
-    public Appointment add(Long doctorId, LocalDateTime startTime, LocalDateTime endTime) {
-        Doctor doctor = doctorRepository.findById(doctorId)
-                .orElseThrow(() -> new DoctorNotFoundException(doctorId));
-        Appointment freeSlot = Appointment.builder()
-                .doctor(doctor)
-                .patient(null)
-                .startTime(startTime)
-                .endTime(endTime)
-                .build();
+    public Appointment add(AppointmentCreateCommand command) {
+        Doctor doctor = doctorRepository.findById(command.doctorId())
+                .orElseThrow(() -> new DoctorNotFoundException(command.doctorId()));
+        Appointment freeSlot = Appointment.createNewAppointment(command);
+        freeSlot.setDoctor(doctor);
         AppointmentValidator.validateCreateAppointment(freeSlot, appointmentRepository);
         return appointmentRepository.save(freeSlot);
     }
@@ -60,5 +56,5 @@ public class AppointmentService {
         appointment.setPatient(patient);
         return appointmentRepository.save(appointment);
     }
-    
+
 }
