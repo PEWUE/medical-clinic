@@ -41,8 +41,4 @@ public class User {
     public int hashCode() {
         return getClass().hashCode();
     }
-
-    public static void xxx() {
-
-    }
 }
