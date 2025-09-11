@@ -1,6 +1,7 @@
 package com.PEWUE.medical_clinic.service;
 
 import com.PEWUE.medical_clinic.command.AppointmentCreateCommand;
+import com.PEWUE.medical_clinic.command.BookAppointmentCommand;
 import com.PEWUE.medical_clinic.exception.AppointmentNotFoundException;
 import com.PEWUE.medical_clinic.exception.DoctorNotFoundException;
 import com.PEWUE.medical_clinic.exception.PatientNotFoundException;
@@ -47,12 +48,12 @@ public class AppointmentService {
     }
 
     @Transactional
-    public Appointment book(Long appointmentId, Long patientId) {
-        Appointment appointment = appointmentRepository.findById(appointmentId)
-                .orElseThrow(() -> new AppointmentNotFoundException(appointmentId));
+    public Appointment book(BookAppointmentCommand command) {
+        Appointment appointment = appointmentRepository.findById(command.appointmentId())
+                .orElseThrow(() -> new AppointmentNotFoundException(command.appointmentId()));
         AppointmentValidator.validateBookAppointment(appointment);
-        Patient patient = patientRepository.findById(patientId)
-                .orElseThrow(() -> new PatientNotFoundException(patientId));
+        Patient patient = patientRepository.findById(command.patientId())
+                .orElseThrow(() -> new PatientNotFoundException(command.patientId()));
         appointment.setPatient(patient);
         return appointmentRepository.save(appointment);
     }

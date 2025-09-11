@@ -1,6 +1,7 @@
 package com.PEWUE.medical_clinic.controller;
 
 import com.PEWUE.medical_clinic.command.AppointmentCreateCommand;
+import com.PEWUE.medical_clinic.command.BookAppointmentCommand;
 import com.PEWUE.medical_clinic.dto.AppointmentDto;
 import com.PEWUE.medical_clinic.dto.ErrorMessageDto;
 import com.PEWUE.medical_clinic.mapper.AppointmentMapper;
@@ -114,8 +115,8 @@ public class AppointmentController {
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
-    @PatchMapping("/{appointmentId}/patients/{patientId}")
-    public AppointmentDto book(@PathVariable Long appointmentId, @PathVariable Long patientId) {
-        return appointmentMapper.toDto(appointmentService.book(appointmentId, patientId));
+    @PatchMapping("/book")
+    public AppointmentDto book(@RequestBody BookAppointmentCommand command) {
+        return appointmentMapper.toDto(appointmentService.book(command));
     }
 }
