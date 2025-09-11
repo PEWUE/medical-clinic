@@ -1,13 +1,13 @@
 package com.PEWUE.medical_clinic.model;
 
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -34,6 +34,8 @@ public class Doctor {
     private User user;
     @ManyToMany(mappedBy = "doctors")
     private List<Institution> institutions = new ArrayList<>();
+    @OneToMany(mappedBy = "doctor")
+    private List<Appointment> appointments = new ArrayList<>();
 
     public void edit(Doctor newData) {
         this.firstName = newData.getFirstName();

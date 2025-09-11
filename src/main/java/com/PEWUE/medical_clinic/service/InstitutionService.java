@@ -7,6 +7,7 @@ import com.PEWUE.medical_clinic.model.Institution;
 import com.PEWUE.medical_clinic.repository.DoctorRepository;
 import com.PEWUE.medical_clinic.repository.InstitutionRepository;
 import com.PEWUE.medical_clinic.validator.InstitutionValidator;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,17 +23,20 @@ public class InstitutionService {
         return institutionRepository.findAll();
     }
 
+    @Transactional
     public Institution add(Institution institution) {
         InstitutionValidator.validateCreateInstitution(institution, institutionRepository);
         return institutionRepository.save(institution);
     }
 
+    @Transactional
     public void delete(Long id) {
         Institution institution = institutionRepository.findById(id)
                 .orElseThrow(() -> new IntitutionNotFoundException(id));
         institutionRepository.delete(institution);
     }
 
+    @Transactional
     public Institution assignDoctorToInstitution(Long doctorId, Long institutionId) {
         Doctor doctor = doctorRepository.findById(doctorId)
                 .orElseThrow(() -> new DoctorNotFoundException(doctorId));

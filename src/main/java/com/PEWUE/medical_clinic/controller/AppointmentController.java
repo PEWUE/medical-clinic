@@ -1,12 +1,11 @@
 package com.PEWUE.medical_clinic.controller;
 
-import com.PEWUE.medical_clinic.command.ChangePasswordCommand;
-import com.PEWUE.medical_clinic.command.UserCreateCommand;
+import com.PEWUE.medical_clinic.command.AppointmentCreateCommand;
+import com.PEWUE.medical_clinic.command.BookAppointmentCommand;
+import com.PEWUE.medical_clinic.dto.AppointmentDto;
 import com.PEWUE.medical_clinic.dto.ErrorMessageDto;
-import com.PEWUE.medical_clinic.dto.UserDto;
-import com.PEWUE.medical_clinic.mapper.UserMapper;
-import com.PEWUE.medical_clinic.model.User;
-import com.PEWUE.medical_clinic.service.UserService;
+import com.PEWUE.medical_clinic.mapper.AppointmentMapper;
+import com.PEWUE.medical_clinic.service.AppointmentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,35 +15,34 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/users")
-@Tag(name = "Users operations")
-public class UserController {
-    private final UserService userService;
-    private final UserMapper userMapper;
+@RequestMapping("/appointments")
+@Tag(name = "Appointments operations")
+public class AppointmentController {
+    private final AppointmentService appointmentService;
+    private final AppointmentMapper appointmentMapper;
 
-    @Operation(summary = "Get all users")
+    @Operation(summary = "Get appointments list")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "List of users returned",
+                    description = "List of appointments returned",
                     content = @Content(
                             mediaType = "application/json",
-                            array = @ArraySchema(schema = @Schema(implementation = UserDto.class)))),
+                            array = @ArraySchema(schema = @Schema(implementation = AppointmentDto.class)))),
             @ApiResponse(
                     responseCode = "500",
                     description = "Internal server error",
@@ -52,29 +50,30 @@ public class UserController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @GetMapping
-    public List<UserDto> findAll() {
-        return userService.findAll().stream()
-                .map(userMapper::toDto)
-                .collect(Collectors.toList());
+    public List<AppointmentDto> find(@RequestParam(required = false) Long doctorId,
+                                     @RequestParam(required = false) Long patientId) {
+        return appointmentService.find(doctorId, patientId).stream()
+                .map(appointmentMapper::toDto)
+                .toList();
     }
 
-    @Operation(summary = "Add user to collection")
+    @Operation(summary = "Create a new available appointment slot for a doctor")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "201",
-                    description = "User created",
+                    description = "Appointment slot successfully created",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = UserDto.class))),
+                            schema = @Schema(implementation = AppointmentDto.class))),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Fields should not be null",
+                    description = "Invalid input data (e.g., overlapping appointment or invalid times)",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class))),
             @ApiResponse(
-                    responseCode = "409",
-                    description = "Given email or username already exists",
+                    responseCode = "404",
+                    description = "Doctor not found for the given doctorId",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class))),
@@ -86,28 +85,27 @@ public class UserController {
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDto add(@RequestBody UserCreateCommand userCreateCommand) {
-        User user = userMapper.toEntity(userCreateCommand);
-        return userMapper.toDto(userService.add(user));
+    public AppointmentDto add(@RequestBody AppointmentCreateCommand appointmentCreateCommand) {
+        return appointmentMapper.toDto(appointmentService.add(appointmentCreateCommand));
     }
 
-    @Operation(summary = "Change user password")
+    @Operation(summary = "Book an available appointment slot by assigning a patient")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Password changed",
+                    description = "Appointment successfully booked",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = UserDto.class))),
+                            schema = @Schema(implementation = AppointmentDto.class))),
             @ApiResponse(
                     responseCode = "400",
-                    description = "Fields should not be null",
+                    description = "Appointment already booked or invalid patient ID",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class))),
             @ApiResponse(
                     responseCode = "404",
-                    description = "User not found",
+                    description = "Appointment or patient not found",
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class))),
@@ -117,8 +115,8 @@ public class UserController {
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
-    @PatchMapping("/{id}")
-    public UserDto changePassword(@PathVariable Long id, @RequestBody ChangePasswordCommand command) {
-        return userMapper.toDto(userService.changePassword(id, command.password()));
+    @PatchMapping("/book")
+    public AppointmentDto book(@RequestBody BookAppointmentCommand command) {
+        return appointmentMapper.toDto(appointmentService.book(command));
     }
 }

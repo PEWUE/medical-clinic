@@ -3,6 +3,7 @@ package com.PEWUE.medical_clinic.mapper;
 import com.PEWUE.medical_clinic.command.DoctorCreateCommand;
 import com.PEWUE.medical_clinic.command.DoctorEditCommand;
 import com.PEWUE.medical_clinic.dto.DoctorDto;
+import com.PEWUE.medical_clinic.model.Appointment;
 import com.PEWUE.medical_clinic.model.Doctor;
 import com.PEWUE.medical_clinic.model.Institution;
 import org.mapstruct.Mapper;
@@ -15,6 +16,7 @@ import java.util.List;
 public interface DoctorMapper {
 
     @Mapping(source = "institutions", target = "institutionsIds", qualifiedByName = "institutionsToIds")
+    @Mapping(source = "appointments", target = "appointmentsIds", qualifiedByName = "appointmentsToIds")
     DoctorDto toDto(Doctor doctor);
 
     Doctor toEntity(DoctorCreateCommand command);
@@ -25,6 +27,13 @@ public interface DoctorMapper {
     default List<Long> institutionsToIds(List<Institution> institutions) {
         return institutions.stream()
                 .map(Institution::getId)
+                .toList();
+    }
+
+    @Named("appointmentsToIds")
+    default List<Long> appointmentsToIds(List<Appointment> appointments) {
+        return appointments.stream()
+                .map(Appointment::getId)
                 .toList();
     }
  }
