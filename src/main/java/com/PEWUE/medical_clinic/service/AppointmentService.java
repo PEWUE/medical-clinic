@@ -14,9 +14,10 @@ import com.PEWUE.medical_clinic.repository.PatientRepository;
 import com.PEWUE.medical_clinic.validator.AppointmentValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,15 +26,15 @@ public class AppointmentService {
     private final DoctorRepository doctorRepository;
     private final PatientRepository patientRepository;
 
-    public List<Appointment> find(Long doctorId, Long patientId) {
+    public Page<Appointment> find(Long doctorId, Long patientId, Pageable pageable) {
         if (doctorId != null && patientId != null) {
-            return appointmentRepository.findByDoctorIdAndPatientId(doctorId, patientId);
+            return appointmentRepository.findByDoctorIdAndPatientId(doctorId, patientId, pageable);
         } else if (doctorId != null) {
-            return appointmentRepository.findByDoctorId(doctorId);
+            return appointmentRepository.findByDoctorId(doctorId, pageable);
         } else if (patientId != null) {
-            return appointmentRepository.findByPatientId(patientId);
+            return appointmentRepository.findByPatientId(patientId, pageable);
         } else {
-            return appointmentRepository.findAll();
+            return appointmentRepository.findAll(pageable);
         }
     }
 

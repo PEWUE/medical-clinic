@@ -1,6 +1,8 @@
 package com.PEWUE.medical_clinic.repository;
 
 import com.PEWUE.medical_clinic.model.Appointment;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,11 +14,11 @@ import java.util.List;
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
-    List<Appointment> findByDoctorId(Long doctorId);
+    Page<Appointment> findByDoctorId(Long doctorId, Pageable pageable);
 
-    List<Appointment> findByPatientId(Long patientId);
+    Page<Appointment> findByPatientId(Long patientId, Pageable pageable);
 
-    List<Appointment> findByDoctorIdAndPatientId(Long doctorId, Long patientId);
+    Page<Appointment> findByDoctorIdAndPatientId(Long doctorId, Long patientId, Pageable pageable);
 
     @Query("""
             select v from Appointment v
@@ -25,6 +27,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             and v.endTime > :startTime
             """)
     List<Appointment> existsByDoctorIdAndTimeRange(@Param("doctorId") Long doctorId,
-                                         @Param("startTime") LocalDateTime start,
-                                         @Param("endTime") LocalDateTime end);
+                                                   @Param("startTime") LocalDateTime start,
+                                                   @Param("endTime") LocalDateTime end);
 }
