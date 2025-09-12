@@ -6,6 +6,8 @@ import com.PEWUE.medical_clinic.repository.UserRepository;
 import com.PEWUE.medical_clinic.validator.UserValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,8 +17,8 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
 
-    public List<User> findAll() {
-        return userRepository.findAll();
+    public Page<User> find(Pageable pageable) {
+        return userRepository.findAll(pageable);
     }
 
     @Transactional

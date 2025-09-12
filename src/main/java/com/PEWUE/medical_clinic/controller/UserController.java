@@ -3,7 +3,9 @@ package com.PEWUE.medical_clinic.controller;
 import com.PEWUE.medical_clinic.command.ChangePasswordCommand;
 import com.PEWUE.medical_clinic.command.UserCreateCommand;
 import com.PEWUE.medical_clinic.dto.ErrorMessageDto;
+import com.PEWUE.medical_clinic.dto.PageDto;
 import com.PEWUE.medical_clinic.dto.UserDto;
+import com.PEWUE.medical_clinic.mapper.PageMapper;
 import com.PEWUE.medical_clinic.mapper.UserMapper;
 import com.PEWUE.medical_clinic.model.User;
 import com.PEWUE.medical_clinic.service.UserService;
@@ -15,6 +17,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,6 +40,7 @@ import java.util.stream.Collectors;
 public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
+    private final PageMapper pageMapper;
 
     @Operation(summary = "Get all users")
     @ApiResponses(value = {
@@ -52,10 +57,9 @@ public class UserController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @GetMapping
-    public List<UserDto> findAll() {
-        return userService.findAll().stream()
-                .map(userMapper::toDto)
-                .collect(Collectors.toList());
+    public PageDto<UserDto> find(Pageable pageable) {
+        Page<User> page = userService.find(pageable);
+        return pageMapper.toPageDto(page, userMapper::toDto);
     }
 
     @Operation(summary = "Add user to collection")
