@@ -6,6 +6,7 @@ import com.PEWUE.medical_clinic.dto.AppointmentDto;
 import com.PEWUE.medical_clinic.dto.ErrorMessageDto;
 import com.PEWUE.medical_clinic.dto.PageDto;
 import com.PEWUE.medical_clinic.mapper.AppointmentMapper;
+import com.PEWUE.medical_clinic.mapper.PageMapper;
 import com.PEWUE.medical_clinic.model.Appointment;
 import com.PEWUE.medical_clinic.service.AppointmentService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,8 +29,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/appointments")
@@ -37,6 +36,7 @@ import java.util.List;
 public class AppointmentController {
     private final AppointmentService appointmentService;
     private final AppointmentMapper appointmentMapper;
+    private final PageMapper pageMapper;
 
     @Operation(summary = "Get appointments list")
     @ApiResponses(value = {
@@ -57,14 +57,7 @@ public class AppointmentController {
                                         @RequestParam(required = false) Long patientId,
                                         Pageable pageable) {
         Page<Appointment> page = appointmentService.find(doctorId, patientId, pageable);
-        List<AppointmentDto> content = page.getContent().stream().map(appointmentMapper::toDto).toList();
-        return new PageDto<>(
-                content,
-                page.getNumber(),
-                page.getSize(),
-                page.getTotalElements(),
-                page.getTotalPages()
-        );
+        return pageMapper.toPageDto(page, appointmentMapper::toDto);
     }
 
     @Operation(summary = "Create a new available appointment slot for a doctor")
