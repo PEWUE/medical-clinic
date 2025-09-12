@@ -57,7 +57,7 @@ public class DoctorController {
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @GetMapping
     public PageDto<DoctorDto> findAll(Pageable pageable) {
-        Page<Doctor> page = doctorService.findAll(pageable);
+        Page<Doctor> page = doctorService.find(pageable);
         return pageMapper.toPageDto(page, doctorMapper::toDto);
     }
 

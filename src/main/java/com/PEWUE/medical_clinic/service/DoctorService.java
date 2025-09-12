@@ -20,7 +20,7 @@ public class DoctorService {
     private final DoctorRepository doctorRepository;
     private final UserRepository userRepository;
 
-    public Page<Doctor> findAll(Pageable pageable) {
+    public Page<Doctor> find(Pageable pageable) {
         return doctorRepository.findAll(pageable);
     }
 
