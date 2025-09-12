@@ -4,7 +4,9 @@ import com.PEWUE.medical_clinic.command.DoctorCreateCommand;
 import com.PEWUE.medical_clinic.command.DoctorEditCommand;
 import com.PEWUE.medical_clinic.dto.DoctorDto;
 import com.PEWUE.medical_clinic.dto.ErrorMessageDto;
+import com.PEWUE.medical_clinic.dto.PageDto;
 import com.PEWUE.medical_clinic.mapper.DoctorMapper;
+import com.PEWUE.medical_clinic.mapper.PageMapper;
 import com.PEWUE.medical_clinic.model.Doctor;
 import com.PEWUE.medical_clinic.service.DoctorService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +17,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +39,7 @@ import java.util.List;
 public class DoctorController {
     private final DoctorService doctorService;
     private final DoctorMapper doctorMapper;
+    private final PageMapper pageMapper;
 
     @Operation(summary = "Get all doctors")
     @ApiResponses(value = {
@@ -51,10 +56,9 @@ public class DoctorController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @GetMapping
-    public List<DoctorDto> findAll() {
-        return doctorService.findAll().stream()
-                .map(doctorMapper::toDto)
-                .toList();
+    public PageDto<DoctorDto> findAll(Pageable pageable) {
+        Page<Doctor> page = doctorService.findAll(pageable);
+        return pageMapper.toPageDto(page, doctorMapper::toDto);
     }
 
     @Operation(summary = "Add doctor to collection")
