@@ -56,7 +56,7 @@ public class PatientController {
     @GetMapping
     public PageDto<PatientDto> find(Pageable pageable) {
         Page<Patient> page = patientService.find(pageable);
-        return pageMapper.toPageDto(page, patientMapper::toDto);
+        return pageMapper.toDto(page, patientMapper::toDto);
     }
 
     @Operation(summary = "Get patient by email")

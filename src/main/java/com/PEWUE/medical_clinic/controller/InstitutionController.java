@@ -26,11 +26,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -58,7 +55,7 @@ public class InstitutionController {
     @GetMapping
     public PageDto<InstitutionDto> find(Pageable pageable) {
         Page<Institution> page = institutionService.find(pageable);
-        return pageMapper.toPageDto(page, institutionMapper::toDto);
+        return pageMapper.toDto(page, institutionMapper::toDto);
     }
 
     @Operation(summary = "Add institution to collection")

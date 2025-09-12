@@ -30,8 +30,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/doctors")
@@ -58,7 +56,7 @@ public class DoctorController {
     @GetMapping
     public PageDto<DoctorDto> findAll(Pageable pageable) {
         Page<Doctor> page = doctorService.find(pageable);
-        return pageMapper.toPageDto(page, doctorMapper::toDto);
+        return pageMapper.toDto(page, doctorMapper::toDto);
     }
 
     @Operation(summary = "Add doctor to collection")

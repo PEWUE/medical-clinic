@@ -8,7 +8,7 @@ import java.util.function.Function;
 
 @Mapper(componentModel = "spring")
 public interface PageMapper {
-    default <T, D> PageDto<D> toPageDto(Page<T> page, Function<T, D> mapper) {
+    default <T, D> PageDto<D> toDto(Page<T> page, Function<T, D> mapper) {
         var content = page.getContent().stream()
                 .map(mapper)
                 .toList();

@@ -57,7 +57,7 @@ public class AppointmentController {
                                         @RequestParam(required = false) Long patientId,
                                         Pageable pageable) {
         Page<Appointment> page = appointmentService.find(doctorId, patientId, pageable);
-        return pageMapper.toPageDto(page, appointmentMapper::toDto);
+        return pageMapper.toDto(page, appointmentMapper::toDto);
     }
 
     @Operation(summary = "Create a new available appointment slot for a doctor")
