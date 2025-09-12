@@ -9,6 +9,8 @@ import com.PEWUE.medical_clinic.repository.InstitutionRepository;
 import com.PEWUE.medical_clinic.validator.InstitutionValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,8 +21,8 @@ public class InstitutionService {
     private final InstitutionRepository institutionRepository;
     private final DoctorRepository doctorRepository;
 
-    public List<Institution> findAll() {
-        return institutionRepository.findAll();
+    public Page<Institution> find(Pageable pageable) {
+        return institutionRepository.findAll(pageable);
     }
 
     @Transactional

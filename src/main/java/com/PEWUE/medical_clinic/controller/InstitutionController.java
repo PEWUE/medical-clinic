@@ -3,7 +3,9 @@ package com.PEWUE.medical_clinic.controller;
 import com.PEWUE.medical_clinic.command.InstitutionCreateCommand;
 import com.PEWUE.medical_clinic.dto.ErrorMessageDto;
 import com.PEWUE.medical_clinic.dto.InstitutionDto;
+import com.PEWUE.medical_clinic.dto.PageDto;
 import com.PEWUE.medical_clinic.mapper.InstitutionMapper;
+import com.PEWUE.medical_clinic.mapper.PageMapper;
 import com.PEWUE.medical_clinic.model.Institution;
 import com.PEWUE.medical_clinic.service.InstitutionService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -14,6 +16,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +26,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,6 +39,7 @@ import java.util.List;
 public class InstitutionController {
     private final InstitutionService institutionService;
     private final InstitutionMapper institutionMapper;
+    private final PageMapper pageMapper;
 
     @Operation(summary = "Get all institutions")
     @ApiResponses(value = {
@@ -50,10 +56,9 @@ public class InstitutionController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @GetMapping
-    public List<InstitutionDto> findAll() {
-        return institutionService.findAll().stream()
-                .map(institutionMapper::toDto)
-                .toList();
+    public PageDto<InstitutionDto> find(Pageable pageable) {
+        Page<Institution> page = institutionService.find(pageable);
+        return pageMapper.toPageDto(page, institutionMapper::toDto);
     }
 
     @Operation(summary = "Add institution to collection")
