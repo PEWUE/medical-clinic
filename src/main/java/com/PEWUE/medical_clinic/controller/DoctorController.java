@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -54,7 +55,7 @@ public class DoctorController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @GetMapping
-    public PageDto<DoctorDto> findAll(Pageable pageable) {
+    public PageDto<DoctorDto> findAll(@ParameterObject Pageable pageable) {
         Page<Doctor> page = doctorService.find(pageable);
         return pageMapper.toDto(page, doctorMapper::toDto);
     }
