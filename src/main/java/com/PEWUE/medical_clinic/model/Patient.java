@@ -36,7 +36,7 @@ public class Patient {
     private String idCardNo;
     private String phoneNumber;
     private LocalDate birthday;
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
     @OneToMany(mappedBy = "patient", fetch = FetchType.LAZY)

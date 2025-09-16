@@ -32,7 +32,7 @@ public class Doctor {
     private String firstName;
     private String lastName;
     private String specialization;
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
     @ManyToMany(mappedBy = "doctors", fetch = FetchType.LAZY)
