@@ -1,5 +1,6 @@
 package com.PEWUE.medical_clinic.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -33,7 +34,7 @@ public class Institution {
     private String postalCode;
     private String street;
     private String streetNo;
-    @ManyToMany
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(joinColumns = @JoinColumn(name = "doctor_id"),
             inverseJoinColumns = @JoinColumn(name = "institution_id"))
     private List<Doctor> doctors = new ArrayList<>();
