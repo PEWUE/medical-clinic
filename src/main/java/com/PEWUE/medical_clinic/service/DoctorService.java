@@ -10,9 +10,9 @@ import com.PEWUE.medical_clinic.validator.DoctorValidator;
 import com.PEWUE.medical_clinic.validator.UserValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -20,8 +20,8 @@ public class DoctorService {
     private final DoctorRepository doctorRepository;
     private final UserRepository userRepository;
 
-    public List<Doctor> findAll() {
-        return doctorRepository.findAll();
+    public Page<Doctor> find(Pageable pageable) {
+        return doctorRepository.findAll(pageable);
     }
 
     public Doctor find(String email) {

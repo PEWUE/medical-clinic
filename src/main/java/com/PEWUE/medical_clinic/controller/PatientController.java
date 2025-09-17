@@ -3,7 +3,9 @@ package com.PEWUE.medical_clinic.controller;
 import com.PEWUE.medical_clinic.command.PatientCreateCommand;
 import com.PEWUE.medical_clinic.command.PatientEditCommand;
 import com.PEWUE.medical_clinic.dto.ErrorMessageDto;
+import com.PEWUE.medical_clinic.dto.PageDto;
 import com.PEWUE.medical_clinic.dto.PatientDto;
+import com.PEWUE.medical_clinic.mapper.PageMapper;
 import com.PEWUE.medical_clinic.mapper.PatientMapper;
 import com.PEWUE.medical_clinic.model.Patient;
 import com.PEWUE.medical_clinic.service.PatientService;
@@ -15,6 +17,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,9 +31,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/patients")
@@ -36,6 +38,7 @@ import java.util.stream.Collectors;
 public class PatientController {
     private final PatientService patientService;
     private final PatientMapper patientMapper;
+    private final PageMapper pageMapper;
 
     @Operation(summary = "Get all patients")
     @ApiResponses(value = {
@@ -52,10 +55,9 @@ public class PatientController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @GetMapping
-    public List<PatientDto> findAll() {
-        return patientService.findAll().stream()
-                .map(patientMapper::toDto)
-                .collect(Collectors.toList());
+    public PageDto<PatientDto> find(@ParameterObject Pageable pageable) {
+        Page<Patient> page = patientService.find(pageable);
+        return pageMapper.toDto(page, patientMapper::toDto);
     }
 
     @Operation(summary = "Get patient by email")
