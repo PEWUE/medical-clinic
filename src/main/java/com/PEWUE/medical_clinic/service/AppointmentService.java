@@ -27,15 +27,7 @@ public class AppointmentService {
     private final PatientRepository patientRepository;
 
     public Page<Appointment> find(Long doctorId, Long patientId, Pageable pageable) {
-        if (doctorId != null && patientId != null) {
-            return appointmentRepository.findByDoctorIdAndPatientId(doctorId, patientId, pageable);
-        } else if (doctorId != null) {
-            return appointmentRepository.findByDoctorId(doctorId, pageable);
-        } else if (patientId != null) {
-            return appointmentRepository.findByPatientId(patientId, pageable);
-        } else {
-            return appointmentRepository.findAll(pageable);
-        }
+        return appointmentRepository.findByFilters(doctorId, patientId, pageable);
     }
 
     @Transactional

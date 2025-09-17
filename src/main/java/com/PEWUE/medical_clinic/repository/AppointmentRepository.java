@@ -14,11 +14,14 @@ import java.util.List;
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
-    Page<Appointment> findByDoctorId(Long doctorId, Pageable pageable);
-
-    Page<Appointment> findByPatientId(Long patientId, Pageable pageable);
-
-    Page<Appointment> findByDoctorIdAndPatientId(Long doctorId, Long patientId, Pageable pageable);
+    @Query("""
+            select a from Appointment a
+            left join a.doctor d
+            left join a.patient p
+            where (:doctorId is null or d.id = :doctorId)
+            and (:patientId is null or p.id = :patientId)
+            """)
+    Page<Appointment> findByFilters(Long doctorId, Long patientId, Pageable pageable);
 
     @Query("""
             select v from Appointment v
