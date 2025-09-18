@@ -1,0 +1,68 @@
+databaseChangeLog:
+  - changeSet:
+      id: 4
+      author: PEWUE
+      changes:
+        - createTable:
+            tableName: institution
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_institution_id
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: city
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: postal_code
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: street
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: street_no
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 5
+      author: PEWUE
+      changes:
+        - createTable:
+            tableName: institution_doctors
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_institution_doctors_id
+                    nullable: false
+              - column:
+                  name: institution_id
+                  type: bigint
+                  constraints:
+                    references: doctor(id)
+                    foreignKeyName: fk_institution_doctors_doctor_id
+              - column:
+                  name: doctor_id
+                  type: bigint
+                  constraints:
+                    references: institution(id)
+                    foreignKeyName: fk_institution_doctors_institution_id
