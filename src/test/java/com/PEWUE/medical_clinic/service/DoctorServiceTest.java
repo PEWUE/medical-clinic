@@ -7,6 +7,8 @@ import static org.mockito.Mockito.*;
 import com.PEWUE.medical_clinic.model.User;
 import com.PEWUE.medical_clinic.repository.DoctorRepository;
 import com.PEWUE.medical_clinic.repository.UserRepository;
+import com.PEWUE.medical_clinic.validator.DoctorValidator;
+import com.PEWUE.medical_clinic.validator.UserValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
@@ -14,6 +16,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,5 +67,43 @@ public class DoctorServiceTest {
         //then
         assertEquals(expectedDoctor, result);
         verify(doctorRepository).findByUserEmail("useremail@example.com");
+    }
+
+    @Test
+    void addDoctor_DataCorrect_DoctorReturned() {
+        //given
+        User inputUser = User.builder()
+                .email("useremail@example.com")
+                .username("username1999")
+                .password("password123!")
+                .build();
+        Doctor inputDoctor = Doctor.builder()
+                .firstName("name")
+                .lastName("lastname")
+                .specialization("surgeon")
+                .user(inputUser)
+                .build();
+        User expectedUser = User.builder()
+                .id(1L)
+                .email("useremail@example.com")
+                .username("username1999")
+                .password("password123!")
+                .build();
+        Doctor expectedDoctor = Doctor.builder()
+                .id(1L)
+                .firstName("name")
+                .lastName("lastname")
+                .specialization("surgeon")
+                .user(expectedUser)
+                .build();
+
+        when(doctorRepository.save(inputDoctor)).thenReturn(expectedDoctor);
+
+        //when
+        Doctor result = doctorService.add(inputDoctor);
+
+        //then
+        assertEquals(expectedDoctor, result);
+        verify(doctorRepository).save(inputDoctor);
     }
 }
