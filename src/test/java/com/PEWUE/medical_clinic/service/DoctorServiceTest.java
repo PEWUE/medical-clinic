@@ -1,6 +1,7 @@
 package com.PEWUE.medical_clinic.service;
 
 import com.PEWUE.medical_clinic.model.Doctor;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -33,8 +34,12 @@ public class DoctorServiceTest {
     @Test
     void getDoctors_DataCorrect_ListDoctorReturned() {
         //given
-        Pageable pageable = PageRequest.of(0,3);
-        List<Doctor> doctors = List.of(new Doctor(), new Doctor(), new Doctor());
+        Pageable pageable = PageRequest.of(0, 3);
+        List<Doctor> doctors = List.of(
+                Doctor.builder().id(1L).firstName("name1").lastName("lastname1").specialization("surgeon").build(),
+                Doctor.builder().id(2L).firstName("name2").lastName("lastname2").specialization("gynecologist").build(),
+                Doctor.builder().id(3L).firstName("name3").lastName("lastname3").specialization("dentist").build()
+        );
         Page<Doctor> expectedPage = new PageImpl<>(doctors, pageable, doctors.size());
 
         when(doctorRepository.findAll(pageable)).thenReturn(expectedPage);
@@ -43,8 +48,21 @@ public class DoctorServiceTest {
         Page<Doctor> result = doctorService.find(pageable);
 
         //then
-        assertEquals(expectedPage, result);
-        assertEquals(3, result.getContent().size());
+        assertAll(
+                () -> assertEquals(3, result.getContent().size()),
+                () -> assertEquals(1L, result.getContent().get(0).getId()),
+                () -> assertEquals(2L, result.getContent().get(1).getId()),
+                () -> assertEquals(3L, result.getContent().get(2).getId()),
+                () -> assertEquals("name1", result.getContent().get(0).getFirstName()),
+                () -> assertEquals("name2", result.getContent().get(1).getFirstName()),
+                () -> assertEquals("name3", result.getContent().get(2).getFirstName()),
+                () -> assertEquals("lastname1", result.getContent().get(0).getLastName()),
+                () -> assertEquals("lastname2", result.getContent().get(1).getLastName()),
+                () -> assertEquals("lastname3", result.getContent().get(2).getLastName()),
+                () -> assertEquals("surgeon", result.getContent().get(0).getSpecialization()),
+                () -> assertEquals("gynecologist", result.getContent().get(1).getSpecialization()),
+                () -> assertEquals("dentist", result.getContent().get(2).getSpecialization())
+        );
         verify(doctorRepository).findAll(pageable);
     }
 
@@ -53,8 +71,12 @@ public class DoctorServiceTest {
         //given
         User expectedUser = User.builder()
                 .email("useremail@example.com")
+                .username("username")
                 .build();
         Doctor expectedDoctor = Doctor.builder()
+                .firstName("John")
+                .lastName("Smith")
+                .specialization("gynecologist")
                 .user(expectedUser)
                 .build();
 
@@ -64,7 +86,13 @@ public class DoctorServiceTest {
         Doctor result = doctorService.find("useremail@example.com");
 
         //then
-        assertEquals(expectedDoctor.getUser().getEmail(), result.getUser().getEmail());
+        assertAll(
+                () -> assertEquals("useremail@example.com", result.getUser().getEmail()),
+                () -> assertEquals("username", result.getUser().getUsername()),
+                () -> assertEquals("John", result.getFirstName()),
+                () -> assertEquals("Smith", result.getLastName()),
+                () -> assertEquals("gynecologist", result.getSpecialization())
+        );
         verify(doctorRepository).findByUserEmail("useremail@example.com");
     }
 
@@ -82,39 +110,41 @@ public class DoctorServiceTest {
                 .specialization("surgeon")
                 .user(inputUser)
                 .build();
-        User expectedUser = User.builder()
+        User user = User.builder()
                 .id(1L)
                 .email("useremail@example.com")
                 .username("username1999")
                 .password("password123!")
                 .build();
-        Doctor expectedDoctor = Doctor.builder()
+        Doctor doctor = Doctor.builder()
                 .id(1L)
                 .firstName("name")
                 .lastName("lastname")
                 .specialization("surgeon")
-                .user(expectedUser)
+                .user(user)
                 .institutions(new ArrayList<>())
                 .appointments(new ArrayList<>())
                 .build();
 
-        when(doctorRepository.save(inputDoctor)).thenReturn(expectedDoctor);
+        when(doctorRepository.save(inputDoctor)).thenReturn(doctor);
 
         //when
         Doctor result = doctorService.add(inputDoctor);
 
         //then
-        assertNotNull(result.getId());
-        assertEquals(expectedDoctor.getId(), result.getId());
-        assertEquals(expectedDoctor.getFirstName(), result.getFirstName());
-        assertEquals(expectedDoctor.getLastName(), result.getLastName());
-        assertEquals(expectedDoctor.getSpecialization(), result.getSpecialization());
-        assertTrue(result.getAppointments().isEmpty());
-        assertTrue(result.getInstitutions().isEmpty());
-        assertNotNull(result.getUser().getId());
-        assertEquals(expectedDoctor.getUser().getId(), result.getUser().getId());
-        assertEquals(expectedDoctor.getUser().getEmail(), result.getUser().getEmail());
-        assertEquals(expectedDoctor.getUser().getUsername(), result.getUser().getUsername());
+        assertAll(
+                () -> assertNotNull(result.getId()),
+                () -> assertEquals(1L, result.getId()),
+                () -> assertEquals("name", result.getFirstName()),
+                () -> assertEquals("lastname", result.getLastName()),
+                () -> assertEquals("surgeon", result.getSpecialization()),
+                () -> assertTrue(result.getAppointments().isEmpty()),
+                () -> assertTrue(result.getInstitutions().isEmpty()),
+                () -> assertNotNull(result.getUser().getId()),
+                () -> assertEquals(1L, result.getUser().getId()),
+                () -> assertEquals("useremail@example.com", result.getUser().getEmail()),
+                () -> assertEquals("username1999", result.getUser().getUsername())
+        );
         verify(doctorRepository).save(inputDoctor);
     }
 
@@ -165,9 +195,11 @@ public class DoctorServiceTest {
         Doctor returnedDoctor = doctorService.edit(email, updatedDoctor);
 
         //then
-        assertEquals(updatedDoctor.getFirstName(), returnedDoctor.getFirstName());
-        assertEquals(updatedDoctor.getLastName(), returnedDoctor.getLastName());
-        assertEquals(updatedDoctor.getSpecialization(), returnedDoctor.getSpecialization());
+        assertAll(
+                () -> assertEquals("Will", returnedDoctor.getFirstName()),
+                () -> assertEquals("Jones", returnedDoctor.getLastName()),
+                () -> assertEquals("gynecologist", returnedDoctor.getSpecialization())
+        );
         verify(doctorRepository).save(foundDoctor);
     }
 }
