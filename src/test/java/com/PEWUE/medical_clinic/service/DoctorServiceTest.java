@@ -40,9 +40,9 @@ public class DoctorServiceTest {
                 Doctor.builder().id(2L).firstName("name2").lastName("lastname2").specialization("gynecologist").build(),
                 Doctor.builder().id(3L).firstName("name3").lastName("lastname3").specialization("dentist").build()
         );
-        Page<Doctor> expectedPage = new PageImpl<>(doctors, pageable, doctors.size());
+        Page<Doctor> page = new PageImpl<>(doctors, pageable, doctors.size());
 
-        when(doctorRepository.findAll(pageable)).thenReturn(expectedPage);
+        when(doctorRepository.findAll(pageable)).thenReturn(page);
 
         //when
         Page<Doctor> result = doctorService.find(pageable);
@@ -69,18 +69,18 @@ public class DoctorServiceTest {
     @Test
     void getDoctorByEmail_DataCorrect_DoctorReturned() {
         //given
-        User expectedUser = User.builder()
+        User user = User.builder()
                 .email("useremail@example.com")
                 .username("username")
                 .build();
-        Doctor expectedDoctor = Doctor.builder()
+        Doctor doctor = Doctor.builder()
                 .firstName("John")
                 .lastName("Smith")
                 .specialization("gynecologist")
-                .user(expectedUser)
+                .user(user)
                 .build();
 
-        when(doctorRepository.findByUserEmail("useremail@example.com")).thenReturn(Optional.of(expectedDoctor));
+        when(doctorRepository.findByUserEmail("useremail@example.com")).thenReturn(Optional.of(doctor));
 
         //when
         Doctor result = doctorService.find("useremail@example.com");
@@ -173,7 +173,9 @@ public class DoctorServiceTest {
         //given
         String email = "johny@example.com";
         User user = User.builder()
+                .id(5L)
                 .email(email)
+                .username("username")
                 .build();
         Doctor foundDoctor = Doctor.builder()
                 .id(10L)
@@ -196,6 +198,10 @@ public class DoctorServiceTest {
 
         //then
         assertAll(
+                () -> assertEquals(5L, returnedDoctor.getUser().getId()),
+                () -> assertEquals("johny@example.com", returnedDoctor.getUser().getEmail()),
+                () -> assertEquals("username", returnedDoctor.getUser().getUsername()),
+                () -> assertEquals(10L, returnedDoctor.getId()),
                 () -> assertEquals("Will", returnedDoctor.getFirstName()),
                 () -> assertEquals("Jones", returnedDoctor.getLastName()),
                 () -> assertEquals("gynecologist", returnedDoctor.getSpecialization())
