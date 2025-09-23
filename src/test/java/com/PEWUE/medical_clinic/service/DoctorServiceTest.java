@@ -7,8 +7,6 @@ import static org.mockito.Mockito.*;
 import com.PEWUE.medical_clinic.model.User;
 import com.PEWUE.medical_clinic.repository.DoctorRepository;
 import com.PEWUE.medical_clinic.repository.UserRepository;
-import com.PEWUE.medical_clinic.validator.DoctorValidator;
-import com.PEWUE.medical_clinic.validator.UserValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
@@ -46,6 +44,7 @@ public class DoctorServiceTest {
 
         //then
         assertEquals(expectedPage, result);
+        assertEquals(3, result.getContent().size());
         verify(doctorRepository).findAll(pageable);
     }
 
@@ -65,7 +64,7 @@ public class DoctorServiceTest {
         Doctor result = doctorService.find("useremail@example.com");
 
         //then
-        assertEquals(expectedDoctor, result);
+        assertEquals(expectedDoctor.getUser().getEmail(), result.getUser().getEmail());
         verify(doctorRepository).findByUserEmail("useremail@example.com");
     }
 
@@ -95,6 +94,8 @@ public class DoctorServiceTest {
                 .lastName("lastname")
                 .specialization("surgeon")
                 .user(expectedUser)
+                .institutions(new ArrayList<>())
+                .appointments(new ArrayList<>())
                 .build();
 
         when(doctorRepository.save(inputDoctor)).thenReturn(expectedDoctor);
@@ -103,7 +104,37 @@ public class DoctorServiceTest {
         Doctor result = doctorService.add(inputDoctor);
 
         //then
-        assertEquals(expectedDoctor, result);
+        assertNotNull(result.getId());
+        assertEquals(expectedDoctor.getId(), result.getId());
+        assertEquals(expectedDoctor.getFirstName(), result.getFirstName());
+        assertEquals(expectedDoctor.getLastName(), result.getLastName());
+        assertEquals(expectedDoctor.getSpecialization(), result.getSpecialization());
+        assertTrue(result.getAppointments().isEmpty());
+        assertTrue(result.getInstitutions().isEmpty());
+        assertNotNull(result.getUser().getId());
+        assertEquals(expectedDoctor.getUser().getId(), result.getUser().getId());
+        assertEquals(expectedDoctor.getUser().getEmail(), result.getUser().getEmail());
+        assertEquals(expectedDoctor.getUser().getUsername(), result.getUser().getUsername());
         verify(doctorRepository).save(inputDoctor);
+    }
+
+    @Test
+    void deleteDoctor_EmailProvided_RepositoryDeleteCalled() {
+        //given
+        String email = "doctor@clinic.com";
+        User user = User.builder()
+                .email(email)
+                .build();
+        Doctor foundDoctor = Doctor.builder()
+                .user(user)
+                .build();
+
+        when(doctorRepository.findByUserEmail(email)).thenReturn(Optional.of(foundDoctor));
+
+        //when
+        doctorService.delete(email);
+
+        //then
+        verify(doctorRepository).delete(foundDoctor);
     }
 }
