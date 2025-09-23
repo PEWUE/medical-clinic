@@ -137,4 +137,37 @@ public class DoctorServiceTest {
         //then
         verify(doctorRepository).delete(foundDoctor);
     }
+
+    @Test
+    void editDoctor_EmailProvided_DoctorReturned() {
+        //given
+        String email = "johny@example.com";
+        User user = User.builder()
+                .email(email)
+                .build();
+        Doctor foundDoctor = Doctor.builder()
+                .id(10L)
+                .firstName("John")
+                .lastName("Smith")
+                .specialization("surgeon")
+                .user(user)
+                .build();
+        Doctor updatedDoctor = Doctor.builder()
+                .firstName("Will")
+                .lastName("Jones")
+                .specialization("gynecologist")
+                .build();
+
+        when(doctorRepository.findByUserEmail(email)).thenReturn(Optional.of(foundDoctor));
+        when(doctorRepository.save(foundDoctor)).thenReturn(foundDoctor);
+
+        //when
+        Doctor returnedDoctor = doctorService.edit(email, updatedDoctor);
+
+        //then
+        assertEquals(updatedDoctor.getFirstName(), returnedDoctor.getFirstName());
+        assertEquals(updatedDoctor.getLastName(), returnedDoctor.getLastName());
+        assertEquals(updatedDoctor.getSpecialization(), returnedDoctor.getSpecialization());
+        verify(doctorRepository).save(foundDoctor);
+    }
 }
