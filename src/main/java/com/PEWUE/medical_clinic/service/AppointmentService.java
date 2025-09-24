@@ -50,5 +50,4 @@ public class AppointmentService {
         appointment.setPatient(patient);
         return appointmentRepository.save(appointment);
     }
-
 }
