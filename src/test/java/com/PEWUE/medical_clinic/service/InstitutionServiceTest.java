@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -139,5 +140,71 @@ public class InstitutionServiceTest {
         verify(institutionRepository).save(inputInstitution);
     }
 
+    @Test
+    void deleteInstitution_DataCorrect_RepositoryDeleteCalled() {
+        //given
+        Long id = 2L;
+        Institution institution = Institution.builder()
+                .id(2L)
+                .name("Institution 2 name")
+                .city("City 2")
+                .postalCode("POSTAL-CODE2")
+                .street("Street Two")
+                .streetNo("43a")
+                .doctors(new ArrayList<>())
+                .build();
 
+        when(institutionRepository.findById(id)).thenReturn(Optional.of(institution));
+
+        //when
+        institutionService.delete(id);
+
+        //then
+        verify(institutionRepository).delete(institution);
+    }
+
+    @Test
+    void AssignDoctorToInstitution_DataCorrect_InstitutionReturned() {
+        //given
+        Long doctorId = 6L;
+        Long institutionId = 4L;
+        Doctor doctor = Doctor.builder()
+                .id(6L)
+                .firstName("name6")
+                .lastName("lastname6")
+                .specialization("surgeon")
+                .institutions(new ArrayList<>())
+                .build();
+        Institution institution = Institution.builder()
+                .id(4L)
+                .name("Institution 4 name")
+                .city("City 4")
+                .postalCode("POSTAL-CODE4")
+                .street("Street Four")
+                .streetNo("56f")
+                .doctors(new ArrayList<>())
+                .build();
+
+        when(doctorRepository.findById(doctorId)).thenReturn(Optional.of(doctor));
+        when(institutionRepository.findById(institutionId)).thenReturn(Optional.of(institution));
+        when(institutionRepository.save(institution)).thenAnswer(invocation -> invocation.getArgument(0));
+
+        //when
+        Institution result = institutionService.assignDoctorToInstitution(doctorId, institutionId);
+
+        //then
+        assertAll(
+                () -> assertEquals(4L, result.getId()),
+                () -> assertEquals("Institution 4 name", result.getName()),
+                () -> assertEquals("City 4", result.getCity()),
+                () -> assertEquals("POSTAL-CODE4", result.getPostalCode()),
+                () -> assertEquals("Street Four", result.getStreet()),
+                () -> assertEquals("56f", result.getStreetNo()),
+                () -> assertTrue(result.getDoctors().contains(doctor)),
+                () -> assertEquals(6L, result.getDoctors().get(0).getId()),
+                () -> assertEquals("name6", result.getDoctors().get(0).getFirstName()),
+                () -> assertEquals("lastname6", result.getDoctors().get(0).getLastName()),
+                () -> assertEquals("surgeon", result.getDoctors().get(0).getSpecialization())
+        );
+    }
 }
