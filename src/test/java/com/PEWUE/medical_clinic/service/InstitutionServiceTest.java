@@ -206,5 +206,8 @@ public class InstitutionServiceTest {
                 () -> assertEquals("lastname6", result.getDoctors().get(0).getLastName()),
                 () -> assertEquals("surgeon", result.getDoctors().get(0).getSpecialization())
         );
+        verify(doctorRepository).findById(doctorId);
+        verify(institutionRepository).findById(institutionId);
+        verify(institutionRepository).save(institution);
     }
 }
