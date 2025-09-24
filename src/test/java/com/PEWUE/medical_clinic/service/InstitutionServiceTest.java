@@ -164,7 +164,7 @@ public class InstitutionServiceTest {
     }
 
     @Test
-    void AssignDoctorToInstitution_DataCorrect_InstitutionReturned() {
+    void assignDoctorToInstitution_DataCorrect_InstitutionReturned() {
         //given
         Long doctorId = 6L;
         Long institutionId = 4L;
