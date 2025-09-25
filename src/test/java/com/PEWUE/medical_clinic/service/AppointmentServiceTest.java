@@ -2,6 +2,7 @@ package com.PEWUE.medical_clinic.service;
 
 import com.PEWUE.medical_clinic.command.AppointmentCreateCommand;
 import com.PEWUE.medical_clinic.command.BookAppointmentCommand;
+import com.PEWUE.medical_clinic.exception.AppointmentAlreadyBookedException;
 import com.PEWUE.medical_clinic.exception.AppointmentNotFoundException;
 import com.PEWUE.medical_clinic.exception.AppointmentOverlapException;
 import com.PEWUE.medical_clinic.exception.DoctorNotFoundException;
@@ -315,6 +316,54 @@ public class AppointmentServiceTest {
         assertAll(
                 () -> assertEquals("Appointment with id 1 not found", exception.getMessage()),
                 () -> assertEquals(HttpStatus.NOT_FOUND, exception.getStatus())
+        );
+    }
+
+    @Test
+    void book_AppointmentAlreadyTaken_AppointmentAlreadyBookedExceptionThrown() {
+        //given
+        BookAppointmentCommand command = BookAppointmentCommand.builder()
+                .appointmentId(1L)
+                .build();
+        Appointment appointment = Appointment.builder()
+                .id(1L)
+                .patient(Patient.builder().id(2L).build())
+                .build();
+
+        when(appointmentRepository.findById(command.appointmentId())).thenReturn(Optional.of(appointment));
+
+        //when
+        AppointmentAlreadyBookedException exception = assertThrows(AppointmentAlreadyBookedException.class,
+                () -> appointmentService.book(command));
+
+        //then
+        assertAll(
+                () -> assertEquals("The appointment is already taken", exception.getMessage()),
+                () -> assertEquals(HttpStatus.CONFLICT, exception.getStatus())
+        );
+    }
+
+    @Test
+    void book_StartTimeInPast_InvalidAppointmentTimeExceptionThrown() {
+        //given
+        BookAppointmentCommand command = BookAppointmentCommand.builder()
+                .appointmentId(1L)
+                .build();
+        Appointment appointment = Appointment.builder()
+                .id(1L)
+                .startTime(LocalDateTime.now().minusHours(2))
+                .build();
+
+        when(appointmentRepository.findById(command.appointmentId())).thenReturn(Optional.of(appointment));
+
+        //when
+        InvalidAppointmentTimeException exception = assertThrows(InvalidAppointmentTimeException.class,
+                () -> appointmentService.book(command));
+
+        //then
+        assertAll(
+                () -> assertEquals("Appointment start time must be in the future", exception.getMessage()),
+                () -> assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus())
         );
     }
 
