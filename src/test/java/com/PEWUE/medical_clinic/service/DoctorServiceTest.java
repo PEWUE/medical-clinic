@@ -321,7 +321,7 @@ public class DoctorServiceTest {
     }
 
     @Test
-    void editDoctor_EmailProvided_DoctorReturned() {
+    void edit_EmailProvided_DoctorReturned() {
         //given
         String email = "johny@example.com";
         User user = User.builder()
