@@ -1,7 +1,7 @@
 package com.PEWUE.medical_clinic.service;
 
 import com.PEWUE.medical_clinic.exception.DoctorNotFoundException;
-import com.PEWUE.medical_clinic.exception.IntitutionNotFoundException;
+import com.PEWUE.medical_clinic.exception.InstitutionNotFoundException;
 import com.PEWUE.medical_clinic.model.Doctor;
 import com.PEWUE.medical_clinic.model.Institution;
 import com.PEWUE.medical_clinic.repository.DoctorRepository;
@@ -13,7 +13,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +33,7 @@ public class InstitutionService {
     @Transactional
     public void delete(Long id) {
         Institution institution = institutionRepository.findById(id)
-                .orElseThrow(() -> new IntitutionNotFoundException(id));
+                .orElseThrow(() -> new InstitutionNotFoundException(id));
         institutionRepository.delete(institution);
     }
 
@@ -43,7 +42,7 @@ public class InstitutionService {
         Doctor doctor = doctorRepository.findById(doctorId)
                 .orElseThrow(() -> new DoctorNotFoundException(doctorId));
         Institution institution = institutionRepository.findById(institutionId)
-                .orElseThrow(()-> new IntitutionNotFoundException(institutionId));
+                .orElseThrow(()-> new InstitutionNotFoundException(institutionId));
         institution.getDoctors().add(doctor);
         return institutionRepository.save(institution);
     }

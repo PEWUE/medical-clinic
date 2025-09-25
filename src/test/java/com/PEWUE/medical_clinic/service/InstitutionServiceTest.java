@@ -1,5 +1,9 @@
 package com.PEWUE.medical_clinic.service;
 
+import com.PEWUE.medical_clinic.exception.DoctorNotFoundException;
+import com.PEWUE.medical_clinic.exception.FieldsShouldNotBeNullException;
+import com.PEWUE.medical_clinic.exception.InstitutionNameAlreadyExistsException;
+import com.PEWUE.medical_clinic.exception.InstitutionNotFoundException;
 import com.PEWUE.medical_clinic.model.Doctor;
 import com.PEWUE.medical_clinic.model.Institution;
 import com.PEWUE.medical_clinic.repository.DoctorRepository;
@@ -10,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,7 +106,7 @@ public class InstitutionServiceTest {
     }
 
     @Test
-    void addInstitution_DataCorrect_InstitutionReturned() {
+    void add_DataCorrect_InstitutionReturned() {
         //given
         Institution inputInstitution = Institution.builder()
                 .name("Institution 2 name")
@@ -141,7 +146,52 @@ public class InstitutionServiceTest {
     }
 
     @Test
-    void deleteInstitution_DataCorrect_RepositoryDeleteCalled() {
+    void add_InstitutionNameFieldIsNull_FieldsShouldNotBeNullExceptionThrown() {
+        //given
+        Institution institution = Institution.builder()
+                .city("City 2")
+                .postalCode("POSTAL-CODE2")
+                .street("Street Two")
+                .streetNo("43a")
+                .build();
+
+        //when
+        FieldsShouldNotBeNullException exception = assertThrows(FieldsShouldNotBeNullException.class,
+                () -> institutionService.add(institution));
+
+        //then
+        assertAll(
+                () -> assertEquals("Fields should not be null", exception.getMessage()),
+                () -> assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus())
+        );
+    }
+
+    @Test
+    void add_InstitutionNameAlreadyTaken_InstitutionNameAlreadyExistsExceptionThrown() {
+        //given
+        Institution institution = Institution.builder()
+                .name("Taken name")
+                .city("City 2")
+                .postalCode("POSTAL-CODE2")
+                .street("Street Two")
+                .streetNo("43a")
+                .build();
+
+        when(institutionRepository.findByName(institution.getName())).thenReturn(Optional.of(institution));
+
+        //when
+        InstitutionNameAlreadyExistsException exception = assertThrows(InstitutionNameAlreadyExistsException.class,
+                () -> institutionService.add(institution));
+
+        //then
+        assertAll(
+                () -> assertEquals("Institution name: Taken name is already taken", exception.getMessage()),
+                () -> assertEquals(HttpStatus.CONFLICT, exception.getStatus())
+        );
+    }
+
+    @Test
+    void delete_DataCorrect_RepositoryDeleteCalled() {
         //given
         Long id = 2L;
         Institution institution = Institution.builder()
@@ -161,6 +211,24 @@ public class InstitutionServiceTest {
 
         //then
         verify(institutionRepository).delete(institution);
+    }
+
+    @Test
+    void delete_InstitutionNotFound_InstitutionNotFoundExceptionThrown() {
+        //given
+        Long id = 2L;
+
+        when(institutionRepository.findById(id)).thenReturn(Optional.empty());
+
+        //when
+        InstitutionNotFoundException exception = assertThrows(InstitutionNotFoundException.class,
+                () -> institutionService.delete(id));
+
+        //then
+        assertAll(
+                () -> assertEquals("Institution with given id: 2 not found", exception.getMessage()),
+                () -> assertEquals(HttpStatus.NOT_FOUND, exception.getStatus())
+        );
     }
 
     @Test
@@ -209,5 +277,46 @@ public class InstitutionServiceTest {
         verify(doctorRepository).findById(doctorId);
         verify(institutionRepository).findById(institutionId);
         verify(institutionRepository).save(institution);
+    }
+
+    @Test
+    void assignDoctorToInstitution_DoctorNotFound_DoctorNotFoundExceptionThrown() {
+        //given
+        Long doctorId = 5L;
+        Long institutionId = 32L;
+
+        when(doctorRepository.findById(doctorId)).thenReturn(Optional.empty());
+
+        //when
+        DoctorNotFoundException exception = assertThrows(DoctorNotFoundException.class,
+                () -> institutionService.assignDoctorToInstitution(doctorId, institutionId));
+
+        //then
+        assertAll(
+                () -> assertEquals("Doctor with id 5 not found", exception.getMessage()),
+                () -> assertEquals(HttpStatus.NOT_FOUND, exception.getStatus())
+        );
+    }
+
+    @Test
+    void assignDoctorToInstitution_InstitutionNotFound_InstitutionNotFoundExceptionThrown() {
+        //given
+        Long doctorId = 5L;
+        Long institutionId = 32L;
+        Doctor doctor = Doctor.builder().id(5L).firstName("name5").lastName("lastname5").specialization("surgeon").build();
+
+
+        when(doctorRepository.findById(doctorId)).thenReturn(Optional.of(doctor));
+        when(institutionRepository.findById(institutionId)).thenReturn(Optional.empty());
+
+        //when
+        InstitutionNotFoundException exception = assertThrows(InstitutionNotFoundException.class,
+                () -> institutionService.assignDoctorToInstitution(doctorId, institutionId));
+
+        //then
+        assertAll(
+                () -> assertEquals("Institution with given id: 32 not found", exception.getMessage()),
+                () -> assertEquals(HttpStatus.NOT_FOUND, exception.getStatus())
+        );
     }
 }
