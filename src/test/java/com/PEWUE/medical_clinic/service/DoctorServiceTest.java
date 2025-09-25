@@ -1,5 +1,6 @@
 package com.PEWUE.medical_clinic.service;
 
+import com.PEWUE.medical_clinic.exception.DoctorNotFoundException;
 import com.PEWUE.medical_clinic.model.Doctor;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -14,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +34,7 @@ public class DoctorServiceTest {
     }
 
     @Test
-    void getDoctors_DataCorrect_ListDoctorReturned() {
+    void find_DataCorrect_DoctorsReturned() {
         //given
         Pageable pageable = PageRequest.of(0, 3);
         List<Doctor> doctors = List.of(
@@ -67,7 +69,7 @@ public class DoctorServiceTest {
     }
 
     @Test
-    void getDoctorByEmail_DataCorrect_DoctorReturned() {
+    void find_DataCorrect_DoctorReturned() {
         //given
         User user = User.builder()
                 .email("useremail@example.com")
@@ -94,6 +96,24 @@ public class DoctorServiceTest {
                 () -> assertEquals("gynecologist", result.getSpecialization())
         );
         verify(doctorRepository).findByUserEmail("useremail@example.com");
+    }
+
+    @Test
+    void find_DoctorNotFound_DoctorNotFoundExceptionThrown() {
+        //given
+        String email = "doctor@email.com";
+
+        when(doctorRepository.findByUserEmail(email)).thenReturn(Optional.empty());
+
+        //when
+        DoctorNotFoundException exception = assertThrows(DoctorNotFoundException.class,
+                () -> doctorService.find(email));
+
+        //then
+        assertAll(
+                () -> assertEquals("Doctor with email doctor@email.com not found", exception.getMessage()),
+                () -> assertEquals(HttpStatus.NOT_FOUND, exception.getStatus())
+        );
     }
 
     @Test
