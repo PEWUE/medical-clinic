@@ -225,8 +225,6 @@ public class DoctorServiceTest {
                 .user(User.builder().username("username").password("password").build())
                 .build();
 
-        when(userRepository.findById(anyLong())).thenReturn(Optional.empty());
-
         //when
         FieldsShouldNotBeNullException exception = assertThrows(FieldsShouldNotBeNullException.class,
                 () -> doctorService.add(doctor));

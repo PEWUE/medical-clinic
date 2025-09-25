@@ -1,6 +1,11 @@
 package com.PEWUE.medical_clinic.service;
 
+import com.PEWUE.medical_clinic.exception.EmailAlreadyExistsException;
+import com.PEWUE.medical_clinic.exception.FieldsShouldNotBeNullException;
+import com.PEWUE.medical_clinic.exception.IdCardNumberAlreadyExistsException;
 import com.PEWUE.medical_clinic.exception.PatientNotFoundException;
+import com.PEWUE.medical_clinic.exception.UserNotFoundException;
+import com.PEWUE.medical_clinic.exception.UsernameAlreadyExistsException;
 import com.PEWUE.medical_clinic.model.Doctor;
 import com.PEWUE.medical_clinic.model.Patient;
 import com.PEWUE.medical_clinic.model.User;
@@ -134,7 +139,7 @@ public class PatientServiceTest {
     }
 
     @Test
-    void addPatient_DataCorrect_PatientReturned() {
+    void add_DataCorrect_PatientReturned() {
         //given
         User inputUser = User.builder()
                 .email("useremail@example.com")
@@ -187,6 +192,153 @@ public class PatientServiceTest {
                 () -> assertEquals("username1999", result.getUser().getUsername())
         );
         verify(patientRepository).save(inputPatient);
+    }
+
+    @Test
+    void add_PatientUserFieldIsNull_FieldsShouldNotBeNullExceptionThrown() {
+        //given
+        Patient patient = Patient.builder()
+                .firstName("name")
+                .lastName("lastname")
+                .idCardNo("PWE137")
+                .phoneNumber("111-222-333")
+                .birthday(LocalDate.of(1999, 1, 11))
+                .build();
+
+        //when
+        FieldsShouldNotBeNullException exception = assertThrows(FieldsShouldNotBeNullException.class,
+                () -> patientService.add(patient));
+
+        //then
+        assertAll(
+                () -> assertEquals("Fields should not be null", exception.getMessage()),
+                () -> assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus())
+        );
+    }
+
+    @Test
+    void add_PatientIdCardNumberAlreadyExists_IdCardNumberAlreadyExistsExceptionThrown() {
+        //given
+        Patient patient = Patient.builder()
+                .firstName("name")
+                .lastName("lastname")
+                .idCardNo("PWE137")
+                .phoneNumber("111-222-333")
+                .birthday(LocalDate.of(1999, 1, 11))
+                .user(User.builder().id(1L).build())
+                .build();
+
+        when(patientRepository.findByIdCardNo(patient.getIdCardNo())).thenReturn(Optional.of(patient));
+
+        //when
+        IdCardNumberAlreadyExistsException exception = assertThrows(IdCardNumberAlreadyExistsException.class,
+                () -> patientService.add(patient));
+
+        //then
+        assertAll(
+                () -> assertEquals("ID card number: PWE137 already exists", exception.getMessage()),
+                () -> assertEquals(HttpStatus.CONFLICT, exception.getStatus())
+        );
+    }
+
+    @Test
+    void add_GivenUserNotFound_UserNotFoundExceptionThrown() {
+        //given
+        Patient patient = Patient.builder()
+                .firstName("name")
+                .lastName("lastname")
+                .idCardNo("PWE137")
+                .phoneNumber("111-222-333")
+                .birthday(LocalDate.of(1999, 1, 11))
+                .user(User.builder().id(1L).build())
+                .build();
+
+        when(userRepository.findById(patient.getUser().getId())).thenReturn(Optional.empty());
+
+        //when
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class,
+                () -> patientService.add(patient));
+
+        //then
+        assertAll(
+                () -> assertEquals("User with id 1 not found", exception.getMessage()),
+                () -> assertEquals(HttpStatus.NOT_FOUND, exception.getStatus())
+        );
+    }
+
+    @Test
+    void add_PatientEmailFieldIsNull_FieldsShouldNotBeNullExceptionThrown() {
+        //given
+        Patient patient = Patient.builder()
+                .firstName("name")
+                .lastName("lastname")
+                .idCardNo("PWE137")
+                .phoneNumber("111-222-333")
+                .birthday(LocalDate.of(1999, 1, 11))
+                .user(User.builder().username("username1").password("password1").build())
+                .build();
+
+        when(patientRepository.findByIdCardNo(patient.getIdCardNo())).thenReturn(Optional.empty());
+
+        //when
+        FieldsShouldNotBeNullException exception = assertThrows(FieldsShouldNotBeNullException.class,
+                () -> patientService.add(patient));
+
+        //then
+        assertAll(
+                () -> assertEquals("Fields should not be null", exception.getMessage()),
+                () -> assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus())
+        );
+    }
+
+    @Test
+    void add_GivenEmailAlreadyExists_EmailAlreadyExistsExceptionThrown() {
+        //given
+        Patient patient = Patient.builder()
+                .firstName("name")
+                .lastName("lastname")
+                .idCardNo("PWE137")
+                .phoneNumber("111-222-333")
+                .birthday(LocalDate.of(1999, 1, 11))
+                .user(User.builder().email("patient@email.com").username("username1").password("password1").build())
+                .build();
+
+        when(userRepository.findByEmail(patient.getUser().getEmail())).thenReturn(Optional.of(patient.getUser()));
+
+        //when
+        EmailAlreadyExistsException exception = assertThrows(EmailAlreadyExistsException.class,
+                () -> patientService.add(patient));
+
+        //then
+        assertAll(
+                () -> assertEquals("Email patient@email.com is already taken", exception.getMessage()),
+                () -> assertEquals(HttpStatus.CONFLICT, exception.getStatus())
+        );
+    }
+
+    @Test
+    void add_GivenUsernameAlreadyExists_EmailAlreadyExistsExceptionThrown() {
+        //given
+        Patient patient = Patient.builder()
+                .firstName("name")
+                .lastName("lastname")
+                .idCardNo("PWE137")
+                .phoneNumber("111-222-333")
+                .birthday(LocalDate.of(1999, 1, 11))
+                .user(User.builder().email("patient@email.com").username("username1").password("password1").build())
+                .build();
+
+        when(userRepository.findByUsername(patient.getUser().getUsername())).thenReturn(Optional.of(patient.getUser()));
+
+        //when
+        UsernameAlreadyExistsException exception = assertThrows(UsernameAlreadyExistsException.class,
+                () -> patientService.add(patient));
+
+        //then
+        assertAll(
+                () -> assertEquals("Username username1 is already taken", exception.getMessage()),
+                () -> assertEquals(HttpStatus.CONFLICT, exception.getStatus())
+        );
     }
 
     @Test
