@@ -2,8 +2,12 @@ package com.PEWUE.medical_clinic.service;
 
 import com.PEWUE.medical_clinic.command.AppointmentCreateCommand;
 import com.PEWUE.medical_clinic.command.BookAppointmentCommand;
+import com.PEWUE.medical_clinic.exception.AppointmentNotFoundException;
+import com.PEWUE.medical_clinic.exception.DoctorNotFoundException;
+import com.PEWUE.medical_clinic.exception.PatientNotFoundException;
 import com.PEWUE.medical_clinic.model.Appointment;
 import com.PEWUE.medical_clinic.model.Doctor;
+import com.PEWUE.medical_clinic.model.Institution;
 import com.PEWUE.medical_clinic.model.Patient;
 import com.PEWUE.medical_clinic.repository.AppointmentRepository;
 import com.PEWUE.medical_clinic.repository.DoctorRepository;
@@ -14,14 +18,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class AppointmentServiceTest {
@@ -126,6 +130,24 @@ public class AppointmentServiceTest {
     }
 
     @Test
+    void add_DoctorNotFound_DoctorNotFoundExceptionThrown() {
+        //given
+        AppointmentCreateCommand command = AppointmentCreateCommand.builder().doctorId(1L).build();
+
+        when(doctorRepository.findById(command.doctorId())).thenReturn(Optional.empty());
+
+        //when
+        DoctorNotFoundException exception = assertThrows(DoctorNotFoundException.class,
+                () -> appointmentService.add(command));
+
+        //then
+        assertAll(
+                () -> assertEquals("Doctor with id 1 not found", exception.getMessage()),
+                () -> assertEquals(HttpStatus.NOT_FOUND, exception.getStatus())
+        );
+    }
+
+    @Test
     void bookAppointment_DataCorrect_AppointmentReturned() {
         //given
         BookAppointmentCommand command = new BookAppointmentCommand(1L, 2L);
@@ -168,6 +190,53 @@ public class AppointmentServiceTest {
                 () -> assertEquals(LocalDate.of(1995, 5, 5), result.getPatient().getBirthday()),
                 () -> assertEquals(LocalDateTime.of(2025, 10, 1, 10, 45), result.getStartTime()),
                 () -> assertEquals(LocalDateTime.of(2025, 10, 1, 11, 45), result.getEndTime())
+        );
+    }
+
+    @Test
+    void book_AppointmentNotFound_AppointmentNotFoundExceptionThrown() {
+        //given
+        BookAppointmentCommand command = BookAppointmentCommand.builder()
+                .appointmentId(1L)
+                .build();
+
+        when(appointmentRepository.findById(command.appointmentId())).thenReturn(Optional.empty());
+
+        //when
+        AppointmentNotFoundException exception = assertThrows(AppointmentNotFoundException.class,
+                () -> appointmentService.book(command));
+
+        //then
+        assertAll(
+                () -> assertEquals("Appointment with id 1 not found", exception.getMessage()),
+                () -> assertEquals(HttpStatus.NOT_FOUND, exception.getStatus())
+        );
+    }
+
+    @Test
+    void book_PatientNotFound_PatientNotFoundExceptionThrown() {
+        //given
+        BookAppointmentCommand command = BookAppointmentCommand.builder()
+                .appointmentId(1L)
+                .patientId(3L)
+                .build();
+        Appointment appointment = Appointment.builder()
+                .id(1L)
+                .startTime(LocalDateTime.of(2025, 10, 1, 10, 45))
+                .endTime(LocalDateTime.of(2025, 10, 1, 11, 15))
+                .build();
+
+        when(appointmentRepository.findById(command.appointmentId())).thenReturn(Optional.of(appointment));
+        when(patientRepository.findById(command.patientId())).thenReturn(Optional.empty());
+
+        //when
+        PatientNotFoundException exception = assertThrows(PatientNotFoundException.class,
+                () -> appointmentService.book(command));
+
+        //then
+        assertAll(
+                () -> assertEquals("Patient with id 3 not found", exception.getMessage()),
+                () -> assertEquals(HttpStatus.NOT_FOUND, exception.getStatus())
         );
     }
 }
