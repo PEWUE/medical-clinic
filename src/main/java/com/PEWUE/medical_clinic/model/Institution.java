@@ -37,6 +37,7 @@ public class Institution {
     private String postalCode;
     private String street;
     private String streetNo;
+    @Builder.Default
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinTable(joinColumns = @JoinColumn(name = "institution_id"),
             inverseJoinColumns = @JoinColumn(name = "doctor_id"))

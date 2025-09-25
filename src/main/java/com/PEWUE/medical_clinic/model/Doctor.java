@@ -37,8 +37,10 @@ public class Doctor {
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
+    @Builder.Default
     @ManyToMany(mappedBy = "doctors", fetch = FetchType.LAZY)
     private List<Institution> institutions = new ArrayList<>();
+    @Builder.Default
     @OneToMany(mappedBy = "doctor", fetch = FetchType.LAZY)
     private List<Appointment> appointments = new ArrayList<>();
 
