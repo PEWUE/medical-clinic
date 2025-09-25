@@ -1,6 +1,10 @@
 package com.PEWUE.medical_clinic.service;
 
 import com.PEWUE.medical_clinic.exception.DoctorNotFoundException;
+import com.PEWUE.medical_clinic.exception.EmailAlreadyExistsException;
+import com.PEWUE.medical_clinic.exception.FieldsShouldNotBeNullException;
+import com.PEWUE.medical_clinic.exception.UserNotFoundException;
+import com.PEWUE.medical_clinic.exception.UsernameAlreadyExistsException;
 import com.PEWUE.medical_clinic.model.Doctor;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -117,7 +121,7 @@ public class DoctorServiceTest {
     }
 
     @Test
-    void addDoctor_DataCorrect_DoctorReturned() {
+    void add_DataCorrect_DoctorReturned() {
         //given
         User inputUser = User.builder()
                 .email("useremail@example.com")
@@ -166,6 +170,114 @@ public class DoctorServiceTest {
                 () -> assertEquals("username1999", result.getUser().getUsername())
         );
         verify(doctorRepository).save(inputDoctor);
+    }
+
+    @Test
+    void add_DoctorUserFieldIsNull_FieldsShouldNotBeNullExceptionThrown() {
+        //given
+        Doctor doctor = Doctor.builder()
+                .firstName("name")
+                .lastName("lastname")
+                .specialization("surgeon")
+                .build();
+
+        //when
+        FieldsShouldNotBeNullException exception = assertThrows(FieldsShouldNotBeNullException.class,
+                () -> doctorService.add(doctor));
+
+        //then
+        assertAll(
+                () -> assertEquals("Fields should not be null", exception.getMessage()),
+                () -> assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus())
+        );
+    }
+
+    @Test
+    void add_GivenUserNotFound_UserNotFoundExceptionThrown() {
+        //given
+        Doctor doctor = Doctor.builder()
+                .firstName("name")
+                .lastName("lastname")
+                .specialization("surgeon")
+                .user(User.builder().id(4L).build())
+                .build();
+
+        //when
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class,
+                () -> doctorService.add(doctor));
+
+        //then
+        assertAll(
+                () -> assertEquals("User with id 4 not found", exception.getMessage()),
+                () -> assertEquals(HttpStatus.NOT_FOUND, exception.getStatus())
+        );
+    }
+
+    @Test
+    void add_DoctorEmailFieldIsNull_FieldsShouldNotBeNullExceptionThrown() {
+        //given
+        Doctor doctor = Doctor.builder()
+                .firstName("name")
+                .lastName("lastname")
+                .specialization("surgeon")
+                .user(User.builder().username("username").password("password").build())
+                .build();
+
+        //when
+        FieldsShouldNotBeNullException exception = assertThrows(FieldsShouldNotBeNullException.class,
+                () -> doctorService.add(doctor));
+
+        //then
+        assertAll(
+                () -> assertEquals("Fields should not be null", exception.getMessage()),
+                () -> assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus())
+        );
+    }
+
+    @Test
+    void add_GivenEmailAlreadyExists_EmailAlreadyExistsExceptionThrown() {
+        //given
+        Doctor doctor = Doctor.builder()
+                .firstName("name")
+                .lastName("lastname")
+                .specialization("surgeon")
+                .user(User.builder().username("username").password("password").email("doctor@email.com").build())
+                .build();
+
+        when(userRepository.findByEmail(doctor.getUser().getEmail())).thenReturn(Optional.of(doctor.getUser()));
+
+        //when
+        EmailAlreadyExistsException exception = assertThrows(EmailAlreadyExistsException.class,
+                () -> doctorService.add(doctor));
+
+        //then
+        assertAll(
+                () -> assertEquals("Email doctor@email.com is already taken", exception.getMessage()),
+                () -> assertEquals(HttpStatus.CONFLICT, exception.getStatus())
+        );
+    }
+
+    @Test
+    void add_GivenUsernameAlreadyExists_EmailAlreadyExistsExceptionThrown() {
+        //given
+        Doctor doctor = Doctor.builder()
+                .firstName("name")
+                .lastName("lastname")
+                .specialization("surgeon")
+                .user(User.builder().username("username").password("password").email("doctor@email.com").build())
+                .build();
+
+        when(userRepository.findByUsername(doctor.getUser().getUsername())).thenReturn(Optional.of(doctor.getUser()));
+
+        //when
+        UsernameAlreadyExistsException exception = assertThrows(UsernameAlreadyExistsException.class,
+                () -> doctorService.add(doctor));
+
+        //then
+        assertAll(
+                () -> assertEquals("Username username is already taken", exception.getMessage()),
+                () -> assertEquals(HttpStatus.CONFLICT, exception.getStatus())
+        );
     }
 
     @Test
