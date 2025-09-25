@@ -358,4 +358,42 @@ public class DoctorServiceTest {
         );
         verify(doctorRepository).save(foundDoctor);
     }
+
+    @Test
+    void edit_DoctorNotFound_DoctorNotFoundExceptionThrown() {
+        //given
+        String email = "doctor@clinic.com";
+        Doctor doctor = Doctor.builder().id(1L).build();
+
+        when(doctorRepository.findByUserEmail(email)).thenReturn(Optional.empty());
+
+        //when
+        DoctorNotFoundException exception = assertThrows(DoctorNotFoundException.class,
+                () -> doctorService.edit(email, doctor));
+
+        //then
+        assertAll(
+                () -> assertEquals("Doctor with email doctor@clinic.com not found", exception.getMessage()),
+                () -> assertEquals(HttpStatus.NOT_FOUND, exception.getStatus())
+        );
+    }
+
+    @Test
+    void edit_DoctorSpecializationFieldIsNull_DoctorNotFoundExceptionThrown() {
+        //given
+        String email = "doctor@clinic.com";
+        Doctor doctor = Doctor.builder().id(1L).firstName("John").lastName("Smith").build();
+
+        when(doctorRepository.findByUserEmail(email)).thenReturn(Optional.of(doctor));
+
+        //when
+        FieldsShouldNotBeNullException exception = assertThrows(FieldsShouldNotBeNullException.class,
+                () -> doctorService.edit(email, doctor));
+
+        //then
+        assertAll(
+                () -> assertEquals("Fields should not be null", exception.getMessage()),
+                () -> assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus())
+        );
+    }
 }
