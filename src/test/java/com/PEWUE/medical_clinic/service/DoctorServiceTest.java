@@ -202,6 +202,8 @@ public class DoctorServiceTest {
                 .user(User.builder().id(4L).build())
                 .build();
 
+        when(userRepository.findById(doctor.getUser().getId())).thenReturn(Optional.empty());
+
         //when
         UserNotFoundException exception = assertThrows(UserNotFoundException.class,
                 () -> doctorService.add(doctor));
