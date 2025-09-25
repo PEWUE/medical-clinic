@@ -281,7 +281,7 @@ public class DoctorServiceTest {
     }
 
     @Test
-    void deleteDoctor_EmailProvided_RepositoryDeleteCalled() {
+    void delete_DataCorrect_RepositoryDeleteCalled() {
         //given
         String email = "doctor@clinic.com";
         User user = User.builder()
@@ -298,6 +298,24 @@ public class DoctorServiceTest {
 
         //then
         verify(doctorRepository).delete(foundDoctor);
+    }
+
+    @Test
+    void delete_DoctorNotFound_DoctorNotFoundExceptionThrown() {
+        //given
+        String email = "johny.silver@email.com";
+
+        when(doctorRepository.findByUserEmail(email)).thenReturn(Optional.empty());
+
+        //when
+        DoctorNotFoundException exception = assertThrows(DoctorNotFoundException.class,
+                () -> doctorService.delete(email));
+
+        //then
+        assertAll(
+                () -> assertEquals("Doctor with email johny.silver@email.com not found", exception.getMessage()),
+                () -> assertEquals(HttpStatus.NOT_FOUND, exception.getStatus())
+        );
     }
 
     @Test
