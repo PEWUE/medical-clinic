@@ -45,7 +45,7 @@ public class AppointmentServiceTest {
     }
 
     @Test
-    void getAppointments_DataCorrect_AppointmentsReturned() {
+    void find_DataCorrect_AppointmentsReturned() {
         // given
         Doctor doctor = Doctor.builder().id(1L).firstName("doctor1").lastName("lastname1").specialization("surgeon").build();
         Patient patient = Patient.builder().id(2L).firstName("patient1").lastName("lastname2").build();
@@ -96,7 +96,7 @@ public class AppointmentServiceTest {
     }
 
     @Test
-    void addAppointment_DataCorrect_AppointmentReturned() {
+    void add_DataCorrect_AppointmentReturned() {
         //given
         AppointmentCreateCommand command = new AppointmentCreateCommand(
                 2L,
@@ -254,7 +254,7 @@ public class AppointmentServiceTest {
     }
 
     @Test
-    void bookAppointment_DataCorrect_AppointmentReturned() {
+    void book_DataCorrect_AppointmentReturned() {
         //given
         BookAppointmentCommand command = new BookAppointmentCommand(1L, 2L);
         Doctor doctor = Doctor.builder().id(2L).firstName("John").lastName("Doctor").specialization("dentist").build();
