@@ -380,7 +380,7 @@ public class PatientServiceTest {
     }
 
     @Test
-    void editPatient_EmailProvided_PatientReturned() {
+    void edit_EmailProvided_PatientReturned() {
         //given
         String email = "paul@example.com";
         User user = User.builder()
@@ -423,5 +423,49 @@ public class PatientServiceTest {
                 () -> assertEquals(LocalDate.of(1980, 10, 1), returnedPatient.getBirthday())
         );
         verify(patientRepository).save(foundPatient);
+    }
+
+    @Test
+    void edit_PatientNotFound_PatientNotFoundException() {
+        //given
+        String email = "patient@email.com";
+        Patient patient = Patient.builder()
+                .firstName("Paul")
+                .build();
+
+        when(patientRepository.findByUserEmail(email)).thenReturn(Optional.empty());
+
+        //when
+        PatientNotFoundException exception = assertThrows(PatientNotFoundException.class,
+                () -> patientService.edit(email, patient));
+
+        //then
+        assertAll(
+                () -> assertEquals("Patient with email patient@email.com not found", exception.getMessage()),
+                () -> assertEquals(HttpStatus.NOT_FOUND, exception.getStatus())
+        );
+    }
+
+    @Test
+    void edit_PatientBirthdayFieldIsNull_FieldsShouldNotBeNullExceptionThrown() {
+        //given
+        String email = "patient@gmail.com";
+        Patient patient = Patient.builder()
+                .firstName("Will")
+                .lastName("Davies")
+                .phoneNumber("111-999-888")
+                .build();
+
+        when(patientRepository.findByUserEmail(email)).thenReturn(Optional.of(patient));
+
+        //when
+        FieldsShouldNotBeNullException exception = assertThrows(FieldsShouldNotBeNullException.class,
+                () -> patientService.edit(email, patient));
+
+        //then
+        assertAll(
+                () -> assertEquals("Fields should not be null", exception.getMessage()),
+                () -> assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus())
+        );
     }
 }
