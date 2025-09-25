@@ -31,7 +31,7 @@ public class InstitutionServiceTest {
     }
 
     @Test
-    void getInstitutions_DataCorrect_InstitutionsReturned() {
+    void find_DataCorrect_InstitutionsReturned() {
         //given
         Pageable pageable = PageRequest.of(0, 2);
         List<Doctor> doctors = List.of(
