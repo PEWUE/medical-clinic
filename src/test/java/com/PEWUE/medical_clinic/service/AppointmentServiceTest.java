@@ -3,11 +3,12 @@ package com.PEWUE.medical_clinic.service;
 import com.PEWUE.medical_clinic.command.AppointmentCreateCommand;
 import com.PEWUE.medical_clinic.command.BookAppointmentCommand;
 import com.PEWUE.medical_clinic.exception.AppointmentNotFoundException;
+import com.PEWUE.medical_clinic.exception.AppointmentOverlapException;
 import com.PEWUE.medical_clinic.exception.DoctorNotFoundException;
+import com.PEWUE.medical_clinic.exception.InvalidAppointmentTimeException;
 import com.PEWUE.medical_clinic.exception.PatientNotFoundException;
 import com.PEWUE.medical_clinic.model.Appointment;
 import com.PEWUE.medical_clinic.model.Doctor;
-import com.PEWUE.medical_clinic.model.Institution;
 import com.PEWUE.medical_clinic.model.Patient;
 import com.PEWUE.medical_clinic.repository.AppointmentRepository;
 import com.PEWUE.medical_clinic.repository.DoctorRepository;
@@ -144,6 +145,110 @@ public class AppointmentServiceTest {
         assertAll(
                 () -> assertEquals("Doctor with id 1 not found", exception.getMessage()),
                 () -> assertEquals(HttpStatus.NOT_FOUND, exception.getStatus())
+        );
+    }
+
+    @Test
+    void add_StartTimeAfterEndTime_InvalidAppointmentTimeExceptionThrown() {
+        //given
+        AppointmentCreateCommand command = AppointmentCreateCommand.builder()
+                .doctorId(1L)
+                .startTime(LocalDateTime.of(2025, 10, 2, 10, 30))
+                .endTime(LocalDateTime.of(2025, 10, 1, 10, 45))
+                .build();
+        Doctor doctor = Doctor.builder().id(1L).firstName("John").lastName("Doctor").specialization("dentist").build();
+
+        when(doctorRepository.findById(command.doctorId())).thenReturn(Optional.of(doctor));
+
+        //when
+        InvalidAppointmentTimeException exception = assertThrows(InvalidAppointmentTimeException.class,
+                () -> appointmentService.add(command));
+        //then
+        assertAll(
+                () -> assertEquals("Appointment start time must be before the end time", exception.getMessage()),
+                () -> assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus())
+        );
+    }
+
+    @Test
+    void add_StartTimeInPast_InvalidAppointmentTimeExceptionThrown() {
+        //given
+        AppointmentCreateCommand command = AppointmentCreateCommand.builder()
+                .doctorId(1L)
+                .startTime(LocalDateTime.now().minusHours(2))
+                .endTime(LocalDateTime.now().plusHours(2))
+                .build();
+        Doctor doctor = Doctor.builder().id(1L).firstName("John").lastName("Doctor").specialization("dentist").build();
+
+        when(doctorRepository.findById(command.doctorId())).thenReturn(Optional.of(doctor));
+
+        //when
+        InvalidAppointmentTimeException exception = assertThrows(InvalidAppointmentTimeException.class,
+                () -> appointmentService.add(command));
+        //then
+        assertAll(
+                () -> assertEquals("Appointment start time must be in the future", exception.getMessage()),
+                () -> assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus())
+        );
+    }
+
+    @Test
+    void add_TimeNotMultipleOf15Minutes_InvalidAppointmentTimeExceptionThrown() {
+        //given
+        AppointmentCreateCommand command = AppointmentCreateCommand.builder()
+                .doctorId(1L)
+                .startTime(LocalDateTime.of(2025, 10, 1, 10, 25))
+                .endTime(LocalDateTime.of(2025, 10, 1, 10, 50))
+                .build();
+        Doctor doctor = Doctor.builder().id(1L).firstName("John").lastName("Doctor").specialization("dentist").build();
+
+        when(doctorRepository.findById(command.doctorId())).thenReturn(Optional.of(doctor));
+
+        //when
+        InvalidAppointmentTimeException exception = assertThrows(InvalidAppointmentTimeException.class,
+                () -> appointmentService.add(command));
+        //then
+        assertAll(
+                () -> assertEquals("Appointment times must be aligned to 15-minute intervals", exception.getMessage()),
+                () -> assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus())
+        );
+    }
+
+    @Test
+    void add_OverlappingAppointment_AppointmentOverlapExceptionThrown() {
+        //given
+        AppointmentCreateCommand command = AppointmentCreateCommand.builder()
+                .doctorId(1L)
+                .startTime(LocalDateTime.of(2025, 10, 1, 10, 15))
+                .endTime(LocalDateTime.of(2025, 10, 1, 10, 30))
+                .build();
+        Doctor doctor = Doctor.builder().id(1L).build();
+        List<Appointment> existingAppointments = List.of(
+                Appointment.builder()
+                        .id(1L)
+                        .doctor(doctor)
+                        .startTime(LocalDateTime.of(2025, 10, 1, 9, 30))
+                        .endTime(LocalDateTime.of(2025, 10, 1, 10, 0))
+                        .build(),
+                Appointment.builder().
+                        id(2L)
+                        .doctor(doctor)
+                        .startTime(LocalDateTime.of(2025, 10, 1, 10, 30))
+                        .endTime(LocalDateTime.of(2025, 10, 1, 11, 0))
+                        .build()
+        );
+
+        when(doctorRepository.findById(command.doctorId())).thenReturn(Optional.of(doctor));
+        when(appointmentRepository.existsByDoctorIdAndTimeRange(doctor.getId(), command.startTime(), command.endTime()))
+                .thenReturn(List.of(existingAppointments.get(1)));
+
+        //when
+        AppointmentOverlapException exception = assertThrows(AppointmentOverlapException.class,
+                () -> appointmentService.add(command));
+        //then
+        assertAll(
+                () -> assertFalse(exception.getConflicts().isEmpty()),
+                () -> assertEquals(2L, exception.getConflicts().get(0).getId())
         );
     }
 
