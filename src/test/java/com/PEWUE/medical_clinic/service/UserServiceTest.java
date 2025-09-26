@@ -2,6 +2,7 @@ package com.PEWUE.medical_clinic.service;
 
 import com.PEWUE.medical_clinic.exception.EmailAlreadyExistsException;
 import com.PEWUE.medical_clinic.exception.FieldsShouldNotBeNullException;
+import com.PEWUE.medical_clinic.exception.UserNotFoundException;
 import com.PEWUE.medical_clinic.exception.UsernameAlreadyExistsException;
 import com.PEWUE.medical_clinic.model.User;
 import com.PEWUE.medical_clinic.repository.UserRepository;
@@ -153,7 +154,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void changeUserPassword_DataCorrect_UserReturned() {
+    void changePassword_DataCorrect_UserReturned() {
         //given
         Long userId = 3L;
         String newPassword = "MyNewPa$$word123!";
@@ -179,5 +180,41 @@ public class UserServiceTest {
         );
         verify(userRepository).findById(userId);
         verify(userRepository).save(user);
+    }
+
+    @Test
+    void changePassword_PasswordFieldIsNull_FieldsShouldNotBeNullExceptionThrown() {
+        //given
+        Long userId = 5L;
+        String password = null;
+
+        //when
+        FieldsShouldNotBeNullException exception = assertThrows(FieldsShouldNotBeNullException.class,
+                () -> userService.changePassword(userId, password));
+
+        //then
+        assertAll(
+                () -> assertEquals("Fields should not be null", exception.getMessage()),
+                () -> assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus())
+        );
+    }
+
+    @Test
+    void changePassword_UserNotFound_UserNotFoundExceptionThrown() {
+        //given
+        Long userId = 5L;
+        String password = "pa$$word";
+
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        //when
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class,
+                () -> userService.changePassword(userId, password));
+
+        //then
+        assertAll(
+                () -> assertEquals("User with id 5 not found", exception.getMessage()),
+                () -> assertEquals(HttpStatus.NOT_FOUND, exception.getStatus())
+        );
     }
 }
