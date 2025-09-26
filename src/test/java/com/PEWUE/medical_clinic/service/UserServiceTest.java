@@ -1,5 +1,8 @@
 package com.PEWUE.medical_clinic.service;
 
+import com.PEWUE.medical_clinic.exception.EmailAlreadyExistsException;
+import com.PEWUE.medical_clinic.exception.FieldsShouldNotBeNullException;
+import com.PEWUE.medical_clinic.exception.UsernameAlreadyExistsException;
 import com.PEWUE.medical_clinic.model.User;
 import com.PEWUE.medical_clinic.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -8,12 +11,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class UserServiceTest {
@@ -27,7 +30,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void findUsers_DataCorrect_UsersReturned() {
+    void find_DataCorrect_UsersReturned() {
         //given
         Pageable pageable = PageRequest.of(0,2);
         List<User> users = List.of(
@@ -57,7 +60,7 @@ public class UserServiceTest {
     }
 
     @Test
-    void addUser_DataCorrect_UserReturned() {
+    void add_DataCorrect_UserReturned() {
         //given
         User inputUser = User.builder()
                 .email("email1@user.com")
@@ -84,6 +87,69 @@ public class UserServiceTest {
                 () -> assertEquals("password1", result.getPassword())
         );
         verify(userRepository).save(inputUser);
+    }
+
+    @Test
+    void add_UserUsernameFieldIsNull_FieldsShouldNotBeNullExceptionThrown() {
+        //given
+        User user = User.builder()
+                .email("user@email.com")
+                .password("pa$$word")
+                .build();
+
+        //when
+        FieldsShouldNotBeNullException exception = assertThrows(FieldsShouldNotBeNullException.class,
+                () -> userService.add(user));
+
+        //then
+        assertAll(
+                () -> assertEquals("Fields should not be null", exception.getMessage()),
+                () -> assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus())
+        );
+    }
+
+    @Test
+    void add_EmailAlreadyExists_EmailAlreadyExistsExceptionThrown() {
+        //given
+        User user = User.builder()
+                .email("user@email.com")
+                .username("username1")
+                .password("pa$$word")
+                .build();
+
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+
+        //when
+        EmailAlreadyExistsException exception = assertThrows(EmailAlreadyExistsException.class,
+                () -> userService.add(user));
+
+        //then
+        assertAll(
+                () -> assertEquals("Email user@email.com is already taken", exception.getMessage()),
+                () -> assertEquals(HttpStatus.CONFLICT, exception.getStatus())
+        );
+    }
+
+    @Test
+    void add_UsernameAlreadyExists_UsernameAlreadyExistsExceptionThrown() {
+        //given
+        User user = User.builder()
+                .email("user@email.com")
+                .username("username1")
+                .password("pa$$word")
+                .build();
+
+        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
+
+        //when
+        UsernameAlreadyExistsException exception = assertThrows(UsernameAlreadyExistsException.class,
+                () -> userService.add(user));
+
+        //then
+        assertAll(
+                () -> assertEquals("Username username1 is already taken", exception.getMessage()),
+                () -> assertEquals(HttpStatus.CONFLICT, exception.getStatus())
+        );
     }
 
     @Test
