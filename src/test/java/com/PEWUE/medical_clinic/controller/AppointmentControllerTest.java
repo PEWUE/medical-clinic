@@ -1,10 +1,12 @@
 package com.PEWUE.medical_clinic.controller;
 
+import com.PEWUE.medical_clinic.command.AppointmentCreateCommand;
 import com.PEWUE.medical_clinic.dto.AppointmentDto;
 import com.PEWUE.medical_clinic.dto.PageDto;
 import com.PEWUE.medical_clinic.mapper.AppointmentMapper;
 import com.PEWUE.medical_clinic.mapper.PageMapper;
 import com.PEWUE.medical_clinic.model.Appointment;
+import com.PEWUE.medical_clinic.model.Doctor;
 import com.PEWUE.medical_clinic.service.AppointmentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -20,9 +22,11 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.function.Function;
 
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -86,5 +90,44 @@ public class AppointmentControllerTest {
                         jsonPath("$.content[1].doctorId").value(1),
                         jsonPath("$.content[1].patientId").value(2)
                 );
+    }
+
+    @Test
+    void shouldReturnCreatedAppointmentDtoWhenValidCreateCommandProvided() throws Exception {
+        AppointmentCreateCommand command = AppointmentCreateCommand.builder()
+                .doctorId(5L)
+                .startTime(LocalDateTime.of(2026, 5, 5, 15, 15))
+                .endTime(LocalDateTime.of(2026, 5, 5, 15, 45))
+                .build();
+        Appointment appointment = Appointment.builder()
+                .id(9L)
+                .doctor(Doctor.builder().id(5L).build())
+                .patient(null)
+                .startTime(LocalDateTime.of(2026, 5, 5, 15, 15))
+                .endTime(LocalDateTime.of(2026, 5, 5, 15, 45))
+                .build();
+        AppointmentDto appointmentDto = AppointmentDto.builder()
+                .id(9L)
+                .doctorId(5L)
+                .patientId(null)
+                .startTime(LocalDateTime.of(2026, 5, 5, 15, 15))
+                .endTime(LocalDateTime.of(2026, 5, 5, 15, 45))
+                .build();
+
+        when(appointmentService.add(command)).thenReturn(appointment);
+        when(appointmentMapper.toDto(appointment)).thenReturn(appointmentDto);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.post("/appointments")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(command))
+        ).andExpectAll(
+                status().isCreated(),
+                jsonPath("$.id").value(9),
+                jsonPath("$.doctorId").value(5),
+                jsonPath("$.patientId").value(nullValue()),
+                jsonPath("$.startTime").value("2026-05-05T15:15:00"),
+                jsonPath("$.endTime").value("2026-05-05T15:45:00")
+        );
     }
 }
