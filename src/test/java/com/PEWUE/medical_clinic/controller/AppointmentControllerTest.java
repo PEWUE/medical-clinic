@@ -64,10 +64,10 @@ public class AppointmentControllerTest {
         Page<Appointment> page = new PageImpl<>(appointments, pageable, appointments.size());
         PageDto<AppointmentDto> pageDto = new PageDto<>(
                 appointmentDtos,
-                0,
-                2,
-                2,
-                1
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages()
         );
 
         when(appointmentService.find(doctorId, patientId, pageable)).thenReturn(page);
