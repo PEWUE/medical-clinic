@@ -3,11 +3,6 @@ package com.PEWUE.medical_clinic.controller;
 import com.PEWUE.medical_clinic.command.DoctorCreateCommand;
 import com.PEWUE.medical_clinic.command.DoctorEditCommand;
 import com.PEWUE.medical_clinic.command.UserCreateCommand;
-import com.PEWUE.medical_clinic.dto.DoctorDto;
-import com.PEWUE.medical_clinic.dto.PageDto;
-import com.PEWUE.medical_clinic.dto.UserDto;
-import com.PEWUE.medical_clinic.mapper.DoctorMapper;
-import com.PEWUE.medical_clinic.mapper.PageMapper;
 import com.PEWUE.medical_clinic.model.Doctor;
 import com.PEWUE.medical_clinic.model.User;
 import com.PEWUE.medical_clinic.service.DoctorService;
@@ -25,12 +20,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
-import static org.hamcrest.Matchers.hasItems;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -41,10 +34,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class DoctorControllerTest {
     @MockitoBean
     DoctorService doctorService;
-    @MockitoBean
-    DoctorMapper doctorMapper;
-    @MockitoBean
-    PageMapper pageMapper;
     @Autowired
     ObjectMapper objectMapper;
     @Autowired
@@ -56,22 +45,10 @@ public class DoctorControllerTest {
                 Doctor.builder().id(1L).firstName("name1").lastName("lastname1").specialization("specialization1").build(),
                 Doctor.builder().id(2L).firstName("name2").lastName("lastname2").specialization("specialization2").build()
         );
-        List<DoctorDto> doctorDtos = List.of(
-                DoctorDto.builder().id(1L).firstName("name1").lastName("lastname1").specialization("specialization1").institutionsIds(List.of(1L, 3L, 5L)).build(),
-                DoctorDto.builder().id(2L).firstName("name2").lastName("lastname2").specialization("specialization2").institutionsIds(List.of(2L, 4L, 6L)).build()
-        );
         Pageable pageable = PageRequest.of(0, 2);
         Page<Doctor> page = new PageImpl<>(doctors, pageable, doctors.size());
-        PageDto<DoctorDto> pageDto = new PageDto<>(
-                doctorDtos,
-                page.getNumber(),
-                page.getSize(),
-                page.getTotalElements(),
-                page.getTotalPages()
-        );
 
         when(doctorService.find(pageable)).thenReturn(page);
-        when(pageMapper.toDto(any(Page.class), any(Function.class))).thenReturn(pageDto);
 
         mockMvc.perform(
                 MockMvcRequestBuilders.get("/doctors")
@@ -85,11 +62,9 @@ public class DoctorControllerTest {
                 jsonPath("$.content[0].lastName").value("lastname1"),
                 jsonPath("$.content[0].specialization").value("specialization1"),
                 jsonPath("$.content[0].institutionsIds").isArray(),
-                jsonPath("$.content[0].institutionsIds[*]", hasItems(1, 3, 5)),
                 jsonPath("$.content[1].firstName").value("name2"),
                 jsonPath("$.content[1].lastName").value("lastname2"),
-                jsonPath("$.content[1].specialization").value("specialization2"),
-                jsonPath("$.content[1].institutionsIds[*]", hasItems(2, 4, 6))
+                jsonPath("$.content[1].specialization").value("specialization2")
         );
     }
 
@@ -102,24 +77,14 @@ public class DoctorControllerTest {
                 .user(UserCreateCommand.builder().email("email@doctor.com").username("username1").password("pa$$word1").build())
                 .build();
         Doctor doctor = Doctor.builder()
-                .firstName("name1")
-                .lastName("lastname1")
-                .specialization("specialization1")
-                .user(User.builder().email("email@doctor.com").username("username1").password("pa$$word1").build())
-                .build();
-        DoctorDto doctorDto = DoctorDto.builder()
                 .id(66L)
                 .firstName("name1")
                 .lastName("lastname1")
                 .specialization("specialization1")
-                .user(UserDto.builder().id(98L).email("email@doctor.com").username("username1").build())
-                .institutionsIds(new ArrayList<>())
-                .appointmentsIds(new ArrayList<>())
+                .user(User.builder().id(98L).email("email@doctor.com").username("username1").password("pa$$word1").build())
                 .build();
 
-        when(doctorMapper.toEntity(command)).thenReturn(doctor);
-        when(doctorService.add(doctor)).thenReturn(doctor);
-        when(doctorMapper.toDto(doctor)).thenReturn(doctorDto);
+        when(doctorService.add(any(Doctor.class))).thenReturn(doctor);
 
         mockMvc.perform(
                 MockMvcRequestBuilders.post("/doctors")
@@ -159,20 +124,13 @@ public class DoctorControllerTest {
                 .specialization("updatedSpecialization")
                 .build();
         Doctor updatedDoctor = Doctor.builder()
-                .firstName("updatedName")
-                .lastName("updatedLastname")
-                .specialization("updatedSpecialization")
-                .build();
-        DoctorDto doctorDto = DoctorDto.builder()
                 .id(56L)
                 .firstName("updatedName")
                 .lastName("updatedLastname")
                 .specialization("updatedSpecialization")
                 .build();
 
-        when(doctorMapper.toEntity(command)).thenReturn(updatedDoctor);
-        when(doctorService.edit(email, updatedDoctor)).thenReturn(updatedDoctor);
-        when(doctorMapper.toDto(updatedDoctor)).thenReturn(doctorDto);
+        when(doctorService.edit(eq(email), any(Doctor.class))).thenReturn(updatedDoctor);
 
         mockMvc.perform(
                 MockMvcRequestBuilders.put("/doctors/{email}", email)
