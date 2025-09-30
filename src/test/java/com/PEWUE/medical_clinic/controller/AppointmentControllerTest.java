@@ -43,7 +43,7 @@ public class AppointmentControllerTest {
     MockMvc mockMvc;
 
     @Test
-    void shouldReturnAppointmentsWhenDataCorrect() throws Exception {
+    void shouldReturnPagedAppointmentDtosWhenDataCorrect() throws Exception {
         List<Appointment> appointments = List.of(
                 Appointment.builder().id(1L).build(),
                 Appointment.builder().id(2L).build()
