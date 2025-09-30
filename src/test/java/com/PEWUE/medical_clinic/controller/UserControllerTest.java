@@ -1,5 +1,6 @@
 package com.PEWUE.medical_clinic.controller;
 
+import com.PEWUE.medical_clinic.command.ChangePasswordCommand;
 import com.PEWUE.medical_clinic.command.UserCreateCommand;
 import com.PEWUE.medical_clinic.model.User;
 import com.PEWUE.medical_clinic.service.UserService;
@@ -20,6 +21,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -84,5 +86,24 @@ public class UserControllerTest {
                 jsonPath("$.username").value("createdUser"),
                 jsonPath("$.password").doesNotExist()
         );
+    }
+
+    @Test
+    void shouldReturnUserDtoWhenValidIdAndNewPasswordProvided() throws Exception {
+        ChangePasswordCommand command = ChangePasswordCommand.builder().password("newPassword").build();
+        User user = User.builder()
+                .id(1L)
+                .password("newPassword")
+                .build();
+
+        when(userService.changePassword(user.getId(), command.password())).thenReturn(user);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.patch("/users/{id}", user.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(command))
+        ).andExpect(status().isOk());
+
+        verify(userService).changePassword(1L, "newPassword");
     }
 }
