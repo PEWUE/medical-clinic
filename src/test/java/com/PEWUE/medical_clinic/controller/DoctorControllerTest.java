@@ -1,6 +1,7 @@
 package com.PEWUE.medical_clinic.controller;
 
 import com.PEWUE.medical_clinic.command.DoctorCreateCommand;
+import com.PEWUE.medical_clinic.command.DoctorEditCommand;
 import com.PEWUE.medical_clinic.command.UserCreateCommand;
 import com.PEWUE.medical_clinic.dto.DoctorDto;
 import com.PEWUE.medical_clinic.dto.PageDto;
@@ -147,5 +148,42 @@ public class DoctorControllerTest {
         ).andExpect(status().isNoContent());
 
         verify(doctorService).delete(email);
+    }
+
+    @Test
+    void shouldReturnUpdatedDoctorDtoWhenValidEmailAndEditCommandProvided() throws Exception {
+        String email = "doctor@clinic.com";
+        DoctorEditCommand command = DoctorEditCommand.builder()
+                .firstName("updatedName")
+                .lastName("updatedLastname")
+                .specialization("updatedSpecialization")
+                .build();
+        Doctor updatedDoctor = Doctor.builder()
+                .firstName("updatedName")
+                .lastName("updatedLastname")
+                .specialization("updatedSpecialization")
+                .build();
+        DoctorDto doctorDto = DoctorDto.builder()
+                .id(56L)
+                .firstName("updatedName")
+                .lastName("updatedLastname")
+                .specialization("updatedSpecialization")
+                .build();
+
+        when(doctorMapper.toEntity(command)).thenReturn(updatedDoctor);
+        when(doctorService.edit(email, updatedDoctor)).thenReturn(updatedDoctor);
+        when(doctorMapper.toDto(updatedDoctor)).thenReturn(doctorDto);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.put("/doctors/{email}", email)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(command))
+        ).andExpectAll(
+                status().isOk(),
+                jsonPath("$.id").value(56),
+                jsonPath("$.firstName").value("updatedName"),
+                jsonPath("$.lastName").value("updatedLastname"),
+                jsonPath("$.specialization").value("updatedSpecialization")
+        );
     }
 }
