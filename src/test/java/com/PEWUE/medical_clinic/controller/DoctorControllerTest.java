@@ -1,5 +1,6 @@
 package com.PEWUE.medical_clinic.controller;
 
+import com.PEWUE.medical_clinic.command.DoctorCreateCommand;
 import com.PEWUE.medical_clinic.dto.DoctorDto;
 import com.PEWUE.medical_clinic.dto.PageDto;
 import com.PEWUE.medical_clinic.mapper.DoctorMapper;
@@ -23,7 +24,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.util.List;
 import java.util.function.Function;
 
+import static org.hamcrest.Matchers.hasItems;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -73,7 +76,16 @@ public class DoctorControllerTest {
                         .param("size", "2")
         ).andExpectAll(
                 status().isOk(),
-                jsonPath("$.content").isArray()
+                jsonPath("$.content").isArray(),
+                jsonPath("$.content[0].firstName").value("name1"),
+                jsonPath("$.content[0].lastName").value("lastname1"),
+                jsonPath("$.content[0].specialization").value("specialization1"),
+                jsonPath("$.content[0].institutionsIds").isArray(),
+                jsonPath("$.content[0].institutionsIds[*]", hasItems(1, 3, 5)),
+                jsonPath("$.content[1].firstName").value("name2"),
+                jsonPath("$.content[1].lastName").value("lastname2"),
+                jsonPath("$.content[1].specialization").value("specialization2"),
+                jsonPath("$.content[1].institutionsIds[*]", hasItems(2, 4, 6))
         );
     }
 }
