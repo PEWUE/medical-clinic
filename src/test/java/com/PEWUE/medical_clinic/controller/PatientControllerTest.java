@@ -24,6 +24,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -113,5 +114,19 @@ public class PatientControllerTest {
                 jsonPath("$.user.username").value("username"),
                 jsonPath("$.user.password").doesNotExist()
         );
+    }
+
+    @Test
+    void shouldDeletePatientWhenValidEmailProvided() throws Exception {
+        String email = "patient@example.com";
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/patients/{email}", email)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(
+                status().isNoContent()
+        );
+
+        verify(patientService).delete(email);
     }
 }
