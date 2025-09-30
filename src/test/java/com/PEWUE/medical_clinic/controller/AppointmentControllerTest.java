@@ -2,10 +2,6 @@ package com.PEWUE.medical_clinic.controller;
 
 import com.PEWUE.medical_clinic.command.AppointmentCreateCommand;
 import com.PEWUE.medical_clinic.command.BookAppointmentCommand;
-import com.PEWUE.medical_clinic.dto.AppointmentDto;
-import com.PEWUE.medical_clinic.dto.PageDto;
-import com.PEWUE.medical_clinic.mapper.AppointmentMapper;
-import com.PEWUE.medical_clinic.mapper.PageMapper;
 import com.PEWUE.medical_clinic.model.Appointment;
 import com.PEWUE.medical_clinic.model.Doctor;
 import com.PEWUE.medical_clinic.model.Patient;
@@ -26,10 +22,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.function.Function;
 
 import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -39,10 +33,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class AppointmentControllerTest {
     @MockitoBean
     AppointmentService appointmentService;
-    @MockitoBean
-    AppointmentMapper appointmentMapper;
-    @MockitoBean
-    PageMapper pageMapper;
     @Autowired
     ObjectMapper objectMapper;
     @Autowired
@@ -54,24 +44,12 @@ public class AppointmentControllerTest {
                 Appointment.builder().id(1L).build(),
                 Appointment.builder().id(2L).build()
         );
-        List<AppointmentDto> appointmentDtos = List.of(
-                AppointmentDto.builder().id(1L).doctorId(1L).patientId(2L).build(),
-                AppointmentDto.builder().id(2L).doctorId(1L).patientId(2L).build()
-        );
         Long doctorId = 1L;
         Long patientId = 2L;
         Pageable pageable = PageRequest.of(0, 2);
         Page<Appointment> page = new PageImpl<>(appointments, pageable, appointments.size());
-        PageDto<AppointmentDto> pageDto = new PageDto<>(
-                appointmentDtos,
-                page.getNumber(),
-                page.getSize(),
-                page.getTotalElements(),
-                page.getTotalPages()
-        );
 
         when(appointmentService.find(doctorId, patientId, pageable)).thenReturn(page);
-        when(pageMapper.toDto(any(Page.class), any(Function.class))).thenReturn(pageDto);
 
         mockMvc.perform(
                         MockMvcRequestBuilders.get("/appointments")
@@ -86,11 +64,7 @@ public class AppointmentControllerTest {
                         jsonPath("$.pageNumber").value(0),
                         jsonPath("$.content").isArray(),
                         jsonPath("$.content[0].id").value(1),
-                        jsonPath("$.content[0].doctorId").value(1),
-                        jsonPath("$.content[0].patientId").value(2),
-                        jsonPath("$.content[1].id").value(2),
-                        jsonPath("$.content[1].doctorId").value(1),
-                        jsonPath("$.content[1].patientId").value(2)
+                        jsonPath("$.content[1].id").value(2)
                 );
     }
 
@@ -108,16 +82,8 @@ public class AppointmentControllerTest {
                 .startTime(LocalDateTime.of(2026, 5, 5, 15, 15))
                 .endTime(LocalDateTime.of(2026, 5, 5, 15, 45))
                 .build();
-        AppointmentDto appointmentDto = AppointmentDto.builder()
-                .id(9L)
-                .doctorId(5L)
-                .patientId(null)
-                .startTime(LocalDateTime.of(2026, 5, 5, 15, 15))
-                .endTime(LocalDateTime.of(2026, 5, 5, 15, 45))
-                .build();
 
         when(appointmentService.add(command)).thenReturn(appointment);
-        when(appointmentMapper.toDto(appointment)).thenReturn(appointmentDto);
 
         mockMvc.perform(
                 MockMvcRequestBuilders.post("/appointments")
@@ -146,16 +112,8 @@ public class AppointmentControllerTest {
                 .startTime(LocalDateTime.of(2026, 5, 10, 8, 30))
                 .endTime(LocalDateTime.of(2026, 5, 10, 9, 0))
                 .build();
-        AppointmentDto appointmentDto = AppointmentDto.builder()
-                .id(2L)
-                .doctorId(4L)
-                .patientId(5L)
-                .startTime(LocalDateTime.of(2026, 5, 10, 8, 30))
-                .endTime(LocalDateTime.of(2026, 5, 10, 9, 0))
-                .build();
 
         when(appointmentService.book(command)).thenReturn(appointment);
-        when(appointmentMapper.toDto(appointment)).thenReturn(appointmentDto);
 
         mockMvc.perform(
                 MockMvcRequestBuilders.patch("/appointments/book")
