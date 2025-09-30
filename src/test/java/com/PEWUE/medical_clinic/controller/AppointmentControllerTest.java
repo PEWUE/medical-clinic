@@ -1,12 +1,14 @@
 package com.PEWUE.medical_clinic.controller;
 
 import com.PEWUE.medical_clinic.command.AppointmentCreateCommand;
+import com.PEWUE.medical_clinic.command.BookAppointmentCommand;
 import com.PEWUE.medical_clinic.dto.AppointmentDto;
 import com.PEWUE.medical_clinic.dto.PageDto;
 import com.PEWUE.medical_clinic.mapper.AppointmentMapper;
 import com.PEWUE.medical_clinic.mapper.PageMapper;
 import com.PEWUE.medical_clinic.model.Appointment;
 import com.PEWUE.medical_clinic.model.Doctor;
+import com.PEWUE.medical_clinic.model.Patient;
 import com.PEWUE.medical_clinic.service.AppointmentService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -128,6 +130,43 @@ public class AppointmentControllerTest {
                 jsonPath("$.patientId").value(nullValue()),
                 jsonPath("$.startTime").value("2026-05-05T15:15:00"),
                 jsonPath("$.endTime").value("2026-05-05T15:45:00")
+        );
+    }
+
+    @Test
+    void shouldReturnAppointmentDtoWhenBookingIsSuccessful() throws Exception {
+        BookAppointmentCommand command = BookAppointmentCommand.builder()
+                .appointmentId(2L)
+                .patientId(5L)
+                .build();
+        Appointment appointment = Appointment.builder()
+                .id(2L)
+                .doctor(Doctor.builder().id(4L).build())
+                .patient(Patient.builder().id(5L).build())
+                .startTime(LocalDateTime.of(2026, 5, 10, 8, 30))
+                .endTime(LocalDateTime.of(2026, 5, 10, 9, 0))
+                .build();
+        AppointmentDto appointmentDto = AppointmentDto.builder()
+                .id(2L)
+                .doctorId(4L)
+                .patientId(5L)
+                .startTime(LocalDateTime.of(2026, 5, 10, 8, 30))
+                .endTime(LocalDateTime.of(2026, 5, 10, 9, 0))
+                .build();
+
+        when(appointmentService.book(command)).thenReturn(appointment);
+        when(appointmentMapper.toDto(appointment)).thenReturn(appointmentDto);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.patch("/appointments/book")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(command))
+        ).andExpectAll(
+                jsonPath("$.id").value(2),
+                jsonPath("$.doctorId").value(4),
+                jsonPath("$.patientId").value(5),
+                jsonPath("$.startTime").value("2026-05-10T08:30:00"),
+                jsonPath("$.endTime").value("2026-05-10T09:00:00")
         );
     }
 }
