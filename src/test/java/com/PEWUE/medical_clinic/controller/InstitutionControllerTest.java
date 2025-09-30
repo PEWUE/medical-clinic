@@ -1,6 +1,7 @@
 package com.PEWUE.medical_clinic.controller;
 
 import com.PEWUE.medical_clinic.command.InstitutionCreateCommand;
+import com.PEWUE.medical_clinic.model.Doctor;
 import com.PEWUE.medical_clinic.model.Institution;
 import com.PEWUE.medical_clinic.service.InstitutionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -97,5 +98,27 @@ public class InstitutionControllerTest {
         ).andExpect(status().isNoContent());
 
         verify(institutionService).delete(institutionId);
+    }
+
+    @Test
+    void shouldReturnInstitutionDtoWithAssignedDoctorIdWhenValidIdsProvided() throws Exception {
+        Long doctorId = 32L;
+        Long institutionId = 22L;
+        Institution institution = Institution.builder()
+                .id(22L)
+                .name("Institution name 1")
+                .doctors(List.of(Doctor.builder().id(32L).build()))
+                .build();
+
+        when(institutionService.assignDoctorToInstitution(doctorId, institutionId)).thenReturn(institution);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.put("/institutions/{institutionId}/doctors/{doctorId}", institutionId, doctorId)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andExpectAll(
+                status().isOk(),
+                jsonPath("$.id").value(22),
+                jsonPath("$.doctorsIds[0]").value(32)
+        );
     }
 }
