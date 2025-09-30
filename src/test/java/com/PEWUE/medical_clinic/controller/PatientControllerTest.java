@@ -1,6 +1,7 @@
 package com.PEWUE.medical_clinic.controller;
 
 import com.PEWUE.medical_clinic.command.PatientCreateCommand;
+import com.PEWUE.medical_clinic.command.PatientEditCommand;
 import com.PEWUE.medical_clinic.command.UserCreateCommand;
 import com.PEWUE.medical_clinic.model.Patient;
 import com.PEWUE.medical_clinic.model.User;
@@ -22,8 +23,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -128,5 +128,38 @@ public class PatientControllerTest {
         );
 
         verify(patientService).delete(email);
+    }
+
+    @Test
+    void shouldReturnUpdatedPatientDtoWhenValidEmailAndEditCommandProvided() throws Exception {
+        String email = "patient@website.com";
+        PatientEditCommand command = PatientEditCommand.builder()
+                .firstName("updatedName")
+                .lastName("updatedLastname")
+                .phoneNumber("111-222-333")
+                .birthday(LocalDate.of(1990, 6, 1))
+                .build();
+        Patient patient = Patient.builder()
+                .id(12L)
+                .firstName("updatedName")
+                .lastName("updatedLastname")
+                .phoneNumber("111-222-333")
+                .birthday(LocalDate.of(1990, 6, 1))
+                .build();
+
+        when(patientService.edit(eq(email), any(Patient.class))).thenReturn(patient);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.put("/patients/{email}", email)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(command))
+        ).andExpectAll(
+                status().isOk(),
+                jsonPath("$.id").value(12),
+                jsonPath("$.firstName").value("updatedName"),
+                jsonPath("$.lastName").value("updatedLastname"),
+                jsonPath("$.phoneNumber").value("111-222-333"),
+                jsonPath("$.birthday").value("1990-06-01")
+        );
     }
 }
