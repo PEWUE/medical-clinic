@@ -1,5 +1,6 @@
 package com.PEWUE.medical_clinic.controller;
 
+import com.PEWUE.medical_clinic.command.UserCreateCommand;
 import com.PEWUE.medical_clinic.model.User;
 import com.PEWUE.medical_clinic.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,7 +40,7 @@ public class UserControllerTest {
                 User.builder().id(1L).email("email1@user.com").username("user1").password("password1").build(),
                 User.builder().id(2L).email("email2@user.com").username("user2").password("password2").build()
         );
-        Pageable pageable = PageRequest.of(0,2);
+        Pageable pageable = PageRequest.of(0, 2);
         Page<User> page = new PageImpl<>(users, pageable, users.size());
 
         when(userService.find(any(Pageable.class))).thenReturn(page);
@@ -51,7 +52,37 @@ public class UserControllerTest {
                 status().isOk(),
                 jsonPath("$.content[0].id").value(1L),
                 jsonPath("$.content[0].email").value("email1@user.com"),
-                jsonPath("$.content[0].username").value("user1")
+                jsonPath("$.content[0].username").value("user1"),
+                jsonPath("$.content[0].password").doesNotExist()
+        );
+    }
+
+    @Test
+    void shouldReturnCreatedUserDtoWhenValidCreateCommandProvided() throws Exception {
+        UserCreateCommand command = UserCreateCommand.builder()
+                .email("user@create.com")
+                .username("createdUser")
+                .password("userPass")
+                .build();
+        User user = User.builder()
+                .id(45L)
+                .email("user@create.com")
+                .username("createdUser")
+                .password("userPass")
+                .build();
+
+        when(userService.add(any(User.class))).thenReturn(user);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.post("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(command))
+        ).andExpectAll(
+                status().isCreated(),
+                jsonPath("$.id").value(45),
+                jsonPath("$.email").value("user@create.com"),
+                jsonPath("$.username").value("createdUser"),
+                jsonPath("$.password").doesNotExist()
         );
     }
 }
