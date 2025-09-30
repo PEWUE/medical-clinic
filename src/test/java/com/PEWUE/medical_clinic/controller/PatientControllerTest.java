@@ -1,5 +1,7 @@
 package com.PEWUE.medical_clinic.controller;
 
+import com.PEWUE.medical_clinic.command.PatientCreateCommand;
+import com.PEWUE.medical_clinic.command.UserCreateCommand;
 import com.PEWUE.medical_clinic.model.Patient;
 import com.PEWUE.medical_clinic.model.User;
 import com.PEWUE.medical_clinic.service.PatientService;
@@ -17,6 +19,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -73,6 +76,42 @@ public class PatientControllerTest {
                 status().isOk(),
                 jsonPath("$.id").value(32),
                 jsonPath("$.user.email").value("given@email.com")
-                );
+        );
+    }
+
+    @Test
+    void shouldReturnCreatedPatientDtoWhenCorrectDataProvided() throws Exception {
+        PatientCreateCommand command = PatientCreateCommand.builder()
+                .firstName("Patient1")
+                .lastName("Last1")
+                .idCardNo("ABC-123")
+                .phoneNumber("999-888-777")
+                .birthday(LocalDate.of(1995, 11, 14))
+                .user(UserCreateCommand.builder().email("email@patient.com").username("username").password("pass123").build())
+                .build();
+        Patient patient = Patient.builder()
+                .id(13L)
+                .firstName("Patient1")
+                .lastName("Last1")
+                .idCardNo("ABC-123")
+                .phoneNumber("999-888-777")
+                .birthday(LocalDate.of(1995, 11, 14))
+                .user(User.builder().id(21L).email("email@patient.com").username("username").password("pass123").build())
+                .build();
+
+        when(patientService.add(any(Patient.class))).thenReturn(patient);
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.post("/patients")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(command))
+        ).andExpectAll(
+                status().isCreated(),
+                jsonPath("$.id").value(13),
+                jsonPath("$.user.id").value(21),
+                jsonPath("$.user.email").value("email@patient.com"),
+                jsonPath("$.user.username").value("username"),
+                jsonPath("$.user.password").doesNotExist()
+        );
     }
 }
