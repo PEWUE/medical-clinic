@@ -30,6 +30,7 @@ import java.util.function.Function;
 
 import static org.hamcrest.Matchers.hasItems;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -135,5 +136,16 @@ public class DoctorControllerTest {
                 jsonPath("$.institutionsIds").isEmpty(),
                 jsonPath("$.appointmentsIds").isEmpty()
         );
+    }
+
+    @Test
+    void shouldDeleteDoctorWhenValidEmailProvided() throws Exception {
+        String email = "doctor@clinic.com";
+
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/doctors/{email}", email)
+        ).andExpect(status().isNoContent());
+
+        verify(doctorService).delete(email);
     }
 }
