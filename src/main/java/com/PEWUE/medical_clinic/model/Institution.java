@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,6 +25,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
+@Builder
 @ToString(exclude = {"doctors"})
 public class Institution {
     @Id
@@ -35,6 +37,7 @@ public class Institution {
     private String postalCode;
     private String street;
     private String streetNo;
+    @Builder.Default
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE}, fetch = FetchType.EAGER)
     @JoinTable(joinColumns = @JoinColumn(name = "institution_id"),
             inverseJoinColumns = @JoinColumn(name = "doctor_id"))

@@ -33,7 +33,7 @@ public class DoctorService {
     public Doctor add(Doctor doctor) {
         DoctorValidator.validateCreateDoctor(doctor);
         assignUserToDoctor(doctor);
-        UserValidator.validateCreateUser(doctor.getUser(),userRepository);
+        UserValidator.validateCreateUser(doctor.getUser(), userRepository);
         return doctorRepository.save(doctor);
     }
 

@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,6 +26,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
+@Builder
 @ToString(exclude = {"appointments"})
 public class Patient {
     @Id
@@ -39,6 +41,7 @@ public class Patient {
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
+    @Builder.Default
     @OneToMany(mappedBy = "patient", fetch = FetchType.LAZY)
     private List<Appointment> appointments = new ArrayList<>();
 

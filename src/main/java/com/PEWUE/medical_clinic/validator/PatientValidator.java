@@ -1,7 +1,7 @@
 package com.PEWUE.medical_clinic.validator;
 
 import com.PEWUE.medical_clinic.exception.FieldsShouldNotBeNullException;
-import com.PEWUE.medical_clinic.exception.IdCardNumberAlreadyExists;
+import com.PEWUE.medical_clinic.exception.IdCardNumberAlreadyExistsException;
 import com.PEWUE.medical_clinic.model.Patient;
 import com.PEWUE.medical_clinic.repository.PatientRepository;
 import lombok.AccessLevel;
@@ -20,7 +20,7 @@ public final class PatientValidator {
             throw new FieldsShouldNotBeNullException();
         }
         if (patientRepository.findByIdCardNo(patient.getIdCardNo()).isPresent()) {
-            throw new IdCardNumberAlreadyExists(patient.getIdCardNo());
+            throw new IdCardNumberAlreadyExistsException(patient.getIdCardNo());
         }
     }
 

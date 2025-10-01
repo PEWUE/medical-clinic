@@ -11,6 +11,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,6 +25,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
+@Builder
 @ToString(exclude = {"institutions", "appointments"})
 public class Doctor {
     @Id
@@ -35,8 +37,10 @@ public class Doctor {
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
+    @Builder.Default
     @ManyToMany(mappedBy = "doctors", fetch = FetchType.LAZY)
     private List<Institution> institutions = new ArrayList<>();
+    @Builder.Default
     @OneToMany(mappedBy = "doctor", fetch = FetchType.LAZY)
     private List<Appointment> appointments = new ArrayList<>();
 

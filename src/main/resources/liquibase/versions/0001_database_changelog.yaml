@@ -1,0 +1,121 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: PEWUE
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_user_id
+                    nullable: false
+              - column:
+                  name: email
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uq_user_email
+              - column:
+                  name: username
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uq_user_username
+              - column:
+                  name: password
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 2
+      author: PEWUE
+      changes:
+        - createTable:
+            tableName: patient
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_patient_id
+                    nullable: false
+              - column:
+                  name: first_name
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_name
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: id_card_no
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uq_patient_id_card_no
+              - column:
+                  name: phone_number
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: birthday
+                  type: date
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    references: users(id)
+                    foreignKeyName: fk_patient_user_id
+                    nullable: false
+  - changeSet:
+      id: 3
+      author: PEWUE
+      changes:
+        - createTable:
+            tableName: doctor
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_doctor_id
+                    nullable: false
+              - column:
+                  name: first_name
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_name
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: specialization
+                  type: varchar(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: bigint
+                  constraints:
+                    references: users(id)
+                    foreignKeyName: fk_doctor_user
+                    nullable: false

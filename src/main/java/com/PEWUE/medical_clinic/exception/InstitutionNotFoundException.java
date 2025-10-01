@@ -2,9 +2,9 @@ package com.PEWUE.medical_clinic.exception;
 
 import org.springframework.http.HttpStatus;
 
-public class IntitutionNotFoundException extends MedClinicException {
+public class InstitutionNotFoundException extends MedClinicException {
 
-    public IntitutionNotFoundException(Long id) {
+    public InstitutionNotFoundException(Long id) {
         super("Institution with given id: " + id + " not found", HttpStatus.NOT_FOUND);
     }
 }
