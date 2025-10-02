@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/users")
@@ -55,6 +57,7 @@ public class UserController {
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @GetMapping
     public PageDto<UserDto> find(@ParameterObject Pageable pageable) {
+        log.info("Received GET /users with pageable={}", pageable);
         Page<User> page = userService.find(pageable);
         return pageMapper.toDto(page, userMapper::toDto);
     }
@@ -87,8 +90,9 @@ public class UserController {
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDto add(@RequestBody UserCreateCommand userCreateCommand) {
-        User user = userMapper.toEntity(userCreateCommand);
+    public UserDto add(@RequestBody UserCreateCommand command) {
+        log.info("Received POST /users to add new user {}", command.username());
+        User user = userMapper.toEntity(command);
         return userMapper.toDto(userService.add(user));
     }
 
@@ -120,6 +124,7 @@ public class UserController {
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @PatchMapping("/{id}")
     public UserDto changePassword(@PathVariable Long id, @RequestBody ChangePasswordCommand command) {
+        log.info("Received PATCH /users to change password for user with id {}", id);
         return userMapper.toDto(userService.changePassword(id, command.password()));
     }
 }
