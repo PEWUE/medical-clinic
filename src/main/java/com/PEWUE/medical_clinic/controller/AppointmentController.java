@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/appointments")
+@Slf4j
 @Tag(name = "Appointments operations")
 public class AppointmentController {
     private final AppointmentService appointmentService;
@@ -57,6 +59,7 @@ public class AppointmentController {
     public PageDto<AppointmentDto> find(@RequestParam(required = false) Long doctorId,
                                         @RequestParam(required = false) Long patientId,
                                         @ParameterObject Pageable pageable) {
+        log.info("Received GET /appointments, doctorId={}, patientId={}, pageable={}", doctorId, patientId, pageable);
         Page<Appointment> page = appointmentService.find(doctorId, patientId, pageable);
         return pageMapper.toDto(page, appointmentMapper::toDto);
     }
@@ -90,6 +93,7 @@ public class AppointmentController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public AppointmentDto add(@RequestBody AppointmentCreateCommand appointmentCreateCommand) {
+        log.info("Received POST /appointments to create slot for doctorId={}", appointmentCreateCommand.doctorId());
         return appointmentMapper.toDto(appointmentService.add(appointmentCreateCommand));
     }
 
@@ -121,6 +125,7 @@ public class AppointmentController {
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @PatchMapping("/book")
     public AppointmentDto book(@RequestBody BookAppointmentCommand command) {
+        log.info("Received PATCH /appointments/book to book appointmentId={} for patientId={}", command.appointmentId(), command.patientId());
         return appointmentMapper.toDto(appointmentService.book(command));
     }
 }
