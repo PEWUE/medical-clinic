@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/doctors")
@@ -56,6 +58,7 @@ public class DoctorController {
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @GetMapping
     public PageDto<DoctorDto> findAll(@ParameterObject Pageable pageable) {
+        log.info("Received GET /doctors, pageable={}", pageable);
         Page<Doctor> page = doctorService.find(pageable);
         return pageMapper.toDto(page, doctorMapper::toDto);
     }
@@ -95,6 +98,7 @@ public class DoctorController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public DoctorDto add(@RequestBody DoctorCreateCommand doctorCreateCommand) {
+        log.info("Received POST /doctors to add new doctor: {} {}", doctorCreateCommand.firstName(), doctorCreateCommand.lastName());
         Doctor doctor = doctorMapper.toEntity(doctorCreateCommand);
         return doctorMapper.toDto(doctorService.add(doctor));
     }
@@ -119,6 +123,7 @@ public class DoctorController {
     @DeleteMapping("/{email}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable String email) {
+        log.info("Received DELETE /doctors/{} to delete doctor", email);
         doctorService.delete(email);
     }
 
@@ -150,6 +155,7 @@ public class DoctorController {
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @PutMapping("/{email}")
     public DoctorDto editDoctor(@PathVariable String email, @RequestBody DoctorEditCommand doctorEditCommand) {
+        log.info("Received PUT /doctors/{} to edit doctor", email);
         Doctor doctor = doctorMapper.toEntity(doctorEditCommand);
         return doctorMapper.toDto(doctorService.edit(email, doctor));
     }
