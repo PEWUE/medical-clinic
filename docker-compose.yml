@@ -1,0 +1,27 @@
+version: '3'
+services:
+  app:
+    build: .
+    container_name: 'medical-clinic-app'
+    depends_on:
+      - 'postgres-db'
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-db:5432/medical-db
+      - SPRING_DATASOURCE_USERNAME=user
+      - SPRING_DATASOURCE_PASSWORD=pass
+    ports:
+      - '8080:8080'
+  postgres-db:
+    image: postgres
+    container_name: 'postgres'
+    environment:
+      POSTGRES_USER: 'user'
+      POSTGRES_PASSWORD: 'pass'
+      POSTGRES_DB: 'medical-db'
+    ports:
+      - '5432:5432'
+    volumes:
+      - medical-data:/var/lib/postgresql/data
+
+volumes:
+  medical-data:
