@@ -11,7 +11,4 @@ public record ErrorMessageDto(
         String error,
         String message,
         String path
-) {
-
-
-}
+) {}
