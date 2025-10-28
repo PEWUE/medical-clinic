@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Service
@@ -35,8 +36,15 @@ public class AppointmentService {
     }
 
     public Page<Appointment> findFreeSlots(Long doctorId, Pageable pageable) {
-        log.info("Finding flee appointment slots by doctorId={}", doctorId);
+        log.info("Finding free appointment slots by doctorId={}", doctorId);
         return appointmentRepository.findFreeAppointmentsFromNow(doctorId, LocalDateTime.now(), pageable);
+    }
+
+    public Page<Appointment> findFreeAppointmentsBySpecializationAndDay(String specialization, LocalDate date, Pageable pageable) {
+        log.info("Finding free appointment slots, specialization={}, date={}", specialization, date);
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.plusDays(1).atStartOfDay();
+        return appointmentRepository.findFreeAppointmentsBySpecializationAndDay(specialization, startOfDay, endOfDay, pageable);
     }
 
     @Transactional

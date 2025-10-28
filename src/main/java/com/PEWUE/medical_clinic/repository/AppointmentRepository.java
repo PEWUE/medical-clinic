@@ -42,4 +42,17 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             """)
     Page<Appointment> findFreeAppointmentsFromNow(Long doctorId, LocalDateTime now, Pageable pageable);
 
+    @Query("""
+            select a from Appointment a
+            join a.doctor d
+            where d.specialization = :specialization
+              and a.patient is null
+              and a.startTime >= :startOfDay
+              and a.startTime < :endOfDay
+            """)
+    Page<Appointment> findFreeAppointmentsBySpecializationAndDay(
+            String specialization,
+            LocalDateTime startOfDay,
+            LocalDateTime endOfDay,
+            Pageable pageable);
 }
