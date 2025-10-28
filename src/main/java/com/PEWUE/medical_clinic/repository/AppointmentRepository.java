@@ -32,4 +32,14 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     List<Appointment> existsByDoctorIdAndTimeRange(@Param("doctorId") Long doctorId,
                                                    @Param("startTime") LocalDateTime start,
                                                    @Param("endTime") LocalDateTime end);
+
+    @Query("""
+            select a from Appointment a
+            left join a.doctor d
+            where d.id = :doctorId
+              and a.patient is null
+              and a.startTime > :now
+            """)
+    Page<Appointment> findFreeAppointmentsFromNow(Long doctorId, LocalDateTime now, Pageable pageable);
+
 }

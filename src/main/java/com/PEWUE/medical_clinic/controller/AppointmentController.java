@@ -64,6 +64,28 @@ public class AppointmentController {
         return pageMapper.toDto(page, appointmentMapper::toDto);
     }
 
+    @Operation(summary = "Get free appointment slots list")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "List of free appointment slots returned",
+                    content = @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = AppointmentDto.class)))),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessageDto.class)))})
+    @GetMapping("/free-slots")
+    public PageDto<AppointmentDto> findFreeSlots(@RequestParam(required = false) Long doctorId,
+                                                 @ParameterObject Pageable pageable) {
+        log.info("Received GET /appointments/free-slots, doctorId={}, pageable={}", doctorId, pageable);
+        Page<Appointment> page = appointmentService.findFreeSlots(doctorId, pageable);
+        return pageMapper.toDto(page, appointmentMapper::toDto);
+    }
+
     @Operation(summary = "Create a new available appointment slot for a doctor")
     @ApiResponses(value = {
             @ApiResponse(

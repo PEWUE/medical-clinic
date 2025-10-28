@@ -19,6 +19,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -30,6 +32,11 @@ public class AppointmentService {
     public Page<Appointment> find(Long doctorId, Long patientId, Pageable pageable) {
         log.info("Finding appointments by doctorId={}, patientId={}, pageable={}", doctorId, patientId, pageable);
         return appointmentRepository.findByFilters(doctorId, patientId, pageable);
+    }
+
+    public Page<Appointment> findFreeSlots(Long doctorId, Pageable pageable) {
+        log.info("Finding flee appointment slots by doctorId={}", doctorId);
+        return appointmentRepository.findFreeAppointmentsFromNow(doctorId, LocalDateTime.now(), pageable);
     }
 
     @Transactional
