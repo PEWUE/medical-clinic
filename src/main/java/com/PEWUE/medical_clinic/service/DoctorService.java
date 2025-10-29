@@ -22,9 +22,9 @@ public class DoctorService {
     private final DoctorRepository doctorRepository;
     private final UserRepository userRepository;
 
-    public Page<Doctor> find(Pageable pageable) {
-        log.info("Finding doctors with pageable={}", pageable);
-        return doctorRepository.findAll(pageable);
+    public Page<Doctor> find(String specialization, Pageable pageable) {
+        log.info("Finding doctors with specialization={} pageable={}", specialization, pageable);
+        return doctorRepository.findByFilters(specialization, pageable);
     }
 
     public Doctor find(String email) {

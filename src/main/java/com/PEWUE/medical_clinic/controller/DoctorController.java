@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -57,9 +58,10 @@ public class DoctorController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @GetMapping
-    public PageDto<DoctorDto> findAll(@ParameterObject Pageable pageable) {
-        log.info("Received GET /doctors, pageable={}", pageable);
-        Page<Doctor> page = doctorService.find(pageable);
+    public PageDto<DoctorDto> find(@RequestParam(required = false) String specialization,
+                                   @ParameterObject Pageable pageable) {
+        log.info("Received GET /doctors, specialization={}, pageable={}", specialization, pageable);
+        Page<Doctor> page = doctorService.find(specialization, pageable);
         return pageMapper.toDto(page, doctorMapper::toDto);
     }
 
