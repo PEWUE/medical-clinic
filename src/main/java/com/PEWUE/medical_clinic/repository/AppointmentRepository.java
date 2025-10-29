@@ -60,6 +60,21 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     @Query("""
             select a from Appointment a
+            left join a.doctor d
+            where a.startTime >= :from
+              and a.startTime <= :to
+              and a.patient is null
+              and (:specialization is null or d.specialization = :specialization)
+            """)
+    Page<Appointment> findFreeSlotsBySpecializationAndDateRange(
+            String specialization,
+            LocalDateTime from,
+            LocalDateTime to,
+            Pageable pageable
+    );
+
+    @Query("""
+            select a from Appointment a
             join a.doctor d
             where d.specialization = :specialization
               and a.patient is null

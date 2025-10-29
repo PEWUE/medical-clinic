@@ -69,6 +69,21 @@ public class AppointmentService {
         );
     }
 
+    public Page<Appointment> findFreeSlotsBySpecializationAndDateRange(
+            String specialization, LocalDateTime from, LocalDateTime to, Pageable pageable
+    ) {
+        if (from.isBefore(LocalDateTime.now())) {
+            throw new InvalidAppointmentTimeException("Date range cannot start in the past");
+        }
+        if (from.isAfter(to)) {
+            throw new InvalidAppointmentTimeException("Invalid time range: 'from' is after 'to'");
+        }
+        return appointmentRepository.findFreeSlotsBySpecializationAndDateRange(
+                specialization, from, to, pageable
+        );
+    }
+
+
     @Transactional
     public Appointment add(AppointmentCreateCommand command) {
         log.info("Creating new appointment for doctorId={}", command.doctorId());

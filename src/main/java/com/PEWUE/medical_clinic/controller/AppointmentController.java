@@ -172,7 +172,36 @@ public class AppointmentController {
         return pageMapper.toDto(page, appointmentMapper::toDto);
     }
 
-
+    @Operation(
+            summary = "Get all free appointment slots by specialization and date range")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Paginated list of free appointment slots returned successfully",
+                    content = @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = AppointmentDto.class)))),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid parameters (e.g., 'from' after 'to', date in the past, or missing data)",
+                    content = @Content(schema = @Schema(implementation = ErrorMessageDto.class))),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorMessageDto.class)))
+    })
+    @GetMapping("/free-slots/specialization-range")
+    public PageDto<AppointmentDto> findFreeSlotsBySpecializationAndDateRange(
+            @RequestParam(required = false) String specialization,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
+            @ParameterObject Pageable pageable
+    ) {
+        Page<Appointment> page = appointmentService.findFreeSlotsBySpecializationAndDateRange(
+                specialization, from, to, pageable
+        );
+        return pageMapper.toDto(page, appointmentMapper::toDto);
+    }
 
     @Operation(summary = "Create a new available appointment slot for a doctor")
     @ApiResponses(value = {
