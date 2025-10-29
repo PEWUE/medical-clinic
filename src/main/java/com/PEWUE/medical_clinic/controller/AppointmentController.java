@@ -158,7 +158,7 @@ public class AppointmentController {
                     description = "Internal server error",
                     content = @Content(schema = @Schema(implementation = ErrorMessageDto.class)))
     })
-    @GetMapping("/appointments/patient/{patientId}/specialization-range")
+    @GetMapping("/patient/{patientId}/specialization-range")
     public PageDto<AppointmentDto> findPatientAppointmentsBySpecializationAndRange(
             @PathVariable Long patientId,
             @RequestParam(required = false) String specialization,
