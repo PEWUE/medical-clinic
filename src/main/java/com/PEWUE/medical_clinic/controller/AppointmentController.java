@@ -69,6 +69,32 @@ public class AppointmentController {
         return pageMapper.toDto(page, appointmentMapper::toDto);
     }
 
+    @Operation(summary = "Get appointment details by appointment ID")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Appointment details returned successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = AppointmentDto.class))),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Appointment with the specified ID not found",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessageDto.class))),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorMessageDto.class)))
+    })
+    @GetMapping("/{appointmentId}")
+    public AppointmentDto getAppointmentById(@PathVariable Long appointmentId) {
+        log.info("Received GET /appointments/{}", appointmentId);
+        Appointment appointment = appointmentService.findById(appointmentId);
+        return appointmentMapper.toDto(appointment);
+    }
+
+
     @Operation(summary = "Get free appointment slots list filtered by doctor ID")
     @ApiResponses(value = {
             @ApiResponse(

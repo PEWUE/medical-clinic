@@ -35,6 +35,12 @@ public class AppointmentService {
         return appointmentRepository.findByFilters(doctorId, patientId, pageable);
     }
 
+    public Appointment findById(Long appointmentId) {
+        log.info("Finding appointments by id={}", appointmentId);
+        return appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new AppointmentNotFoundException(appointmentId));
+    }
+
     public Page<Appointment> findFreeSlots(Long doctorId, Pageable pageable) {
         log.info("Finding free appointment slots by doctorId={}", doctorId);
         return appointmentRepository.findFreeAppointmentsFromNow(doctorId, LocalDateTime.now(), pageable);
