@@ -166,6 +166,7 @@ public class AppointmentController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
             @ParameterObject Pageable pageable
     ) {
+        log.info("Received GET /appointments/patient/{patientId}/specialization-range, patientId={}, specialization={}, from={}, to={}, pageable={}", patientId, specialization, from, to, pageable);
         Page<Appointment> page = appointmentService.findPatientAppointmentsBySpecializationAndTimeRange(
                 patientId, specialization, from, to, pageable
         );
@@ -197,6 +198,7 @@ public class AppointmentController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
             @ParameterObject Pageable pageable
     ) {
+        log.info("Received GET /appointments/free-slots/specialization-range, specialization={}, from={}, to={}, pageable={}", specialization, from, to, pageable);
         Page<Appointment> page = appointmentService.findFreeSlotsBySpecializationAndDateRange(
                 specialization, from, to, pageable
         );
