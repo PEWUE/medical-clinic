@@ -71,4 +71,11 @@ public class AppointmentService {
         log.info("AppointmentId={} successfully booked for patientId={}", command.appointmentId(), command.patientId());
         return appointmentRepository.save(appointment);
     }
+
+    @Transactional
+    public void cancel(Long appointmentId) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new AppointmentNotFoundException(appointmentId));
+        appointmentRepository.delete(appointment);
+    }
 }

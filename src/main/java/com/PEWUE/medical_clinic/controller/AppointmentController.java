@@ -23,8 +23,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -177,5 +179,25 @@ public class AppointmentController {
     public AppointmentDto book(@RequestBody BookAppointmentCommand command) {
         log.info("Received PATCH /appointments/book to book appointmentId={} for patientId={}", command.appointmentId(), command.patientId());
         return appointmentMapper.toDto(appointmentService.book(command));
+    }
+
+    @Operation(summary = "Cancel (delete) appointment")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Appointment successfully canceled (deleted)"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Appointment not found",
+                    content = @Content(schema = @Schema(implementation = ErrorMessageDto.class))),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorMessageDto.class)))
+    })
+    @DeleteMapping("/{appointmentId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void cancelAppointment(@PathVariable Long appointmentId) {
+        appointmentService.cancel(appointmentId);
     }
 }
