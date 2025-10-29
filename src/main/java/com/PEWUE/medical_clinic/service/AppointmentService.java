@@ -4,6 +4,7 @@ import com.PEWUE.medical_clinic.command.AppointmentCreateCommand;
 import com.PEWUE.medical_clinic.command.BookAppointmentCommand;
 import com.PEWUE.medical_clinic.exception.AppointmentNotFoundException;
 import com.PEWUE.medical_clinic.exception.DoctorNotFoundException;
+import com.PEWUE.medical_clinic.exception.InvalidAppointmentTimeException;
 import com.PEWUE.medical_clinic.exception.PatientNotFoundException;
 import com.PEWUE.medical_clinic.model.Appointment;
 import com.PEWUE.medical_clinic.model.Doctor;
@@ -51,6 +52,21 @@ public class AppointmentService {
         LocalDateTime startOfDay = date.atStartOfDay();
         LocalDateTime endOfDay = date.plusDays(1).atStartOfDay();
         return appointmentRepository.findFreeAppointmentsBySpecializationAndDay(specialization, startOfDay, endOfDay, pageable);
+    }
+
+    public Page<Appointment> findPatientAppointmentsBySpecializationAndTimeRange(
+            Long patientId,
+            String specialization,
+            LocalDateTime from,
+            LocalDateTime to,
+            Pageable pageable
+    ) {
+        if (from.isAfter(to)) {
+            throw new InvalidAppointmentTimeException("Invalid time range: 'from' is after 'to'");
+        }
+        return appointmentRepository.findByPatientAndSpecializationAndDateRange(
+                patientId, specialization, from, to, pageable
+        );
     }
 
     @Transactional

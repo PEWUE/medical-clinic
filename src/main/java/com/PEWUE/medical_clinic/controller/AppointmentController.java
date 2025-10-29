@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @RestController
 @RequiredArgsConstructor
@@ -140,6 +141,37 @@ public class AppointmentController {
         Page<Appointment> page = appointmentService.findFreeAppointmentsBySpecializationAndDay(specialization, date, pageable);
         return pageMapper.toDto(page, appointmentMapper::toDto);
     }
+
+    @Operation(summary = "Find appointments by patient, specialization and date range")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Paginated list of appointment slots returned",
+                    content = @Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = AppointmentDto.class)))),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid time range or missing data",
+                    content = @Content(schema = @Schema(implementation = ErrorMessageDto.class))),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Internal server error",
+                    content = @Content(schema = @Schema(implementation = ErrorMessageDto.class)))
+    })
+    @GetMapping("/appointments/patient/{patientId}/specialization-range")
+    public PageDto<AppointmentDto> findPatientAppointmentsBySpecializationAndRange(
+            @PathVariable Long patientId,
+            @RequestParam(required = false) String specialization,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
+            @ParameterObject Pageable pageable
+    ) {
+        Page<Appointment> page = appointmentService.findPatientAppointmentsBySpecializationAndTimeRange(
+                patientId, specialization, from, to, pageable
+        );
+        return pageMapper.toDto(page, appointmentMapper::toDto);
+    }
+
 
 
     @Operation(summary = "Create a new available appointment slot for a doctor")
