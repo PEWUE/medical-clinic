@@ -63,16 +63,16 @@ public class AppointmentController {
             @RequestParam(required = false) Long doctorId,
             @RequestParam(required = false) Long patientId,
             @RequestParam(required = false) String specialization,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime fromDateTime,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime toDateTime,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
             @RequestParam(required = false) Boolean freeSlots,
             @ParameterObject Pageable pageable) {
 
-        log.info("Find appointments with filters doctorId={}, patientId={}, specialization={}, fromDateTime={}, toDateTime={}, freeSlots={}, pageable={}",
-                doctorId, patientId, specialization, fromDateTime, toDateTime, freeSlots, pageable);
+        log.info("Find appointments with filters doctorId={}, patientId={}, specialization={}, from={}, to={}, freeSlots={}, pageable={}",
+                doctorId, patientId, specialization, from, to, freeSlots, pageable);
 
         Page<Appointment> page = appointmentService.findAppointments(
-                doctorId, patientId, specialization, fromDateTime, toDateTime, freeSlots, pageable);
+                doctorId, patientId, specialization, from, to, freeSlots, pageable);
 
         return pageMapper.toDto(page, appointmentMapper::toDto);
     }

@@ -53,8 +53,10 @@ public class AppointmentService {
             spec = spec.and((root, query, cb) -> cb.equal(root.get("doctor").get("specialization"), specialization));
         }
         if (from != null && to != null) {
-            spec = spec.and((root, query, cb) ->
-                    cb.between(root.get("date"), from, to));
+            spec = spec.and((root, query, cb) -> cb.and(
+                    cb.greaterThanOrEqualTo(root.get("startTime"), from),
+                    cb.lessThanOrEqualTo(root.get("endTime"), to)
+            ));
         }
         if (freeSlots != null && freeSlots) {
             spec = spec.and((root, query, cb) -> cb.isNull(root.get("patient")));
