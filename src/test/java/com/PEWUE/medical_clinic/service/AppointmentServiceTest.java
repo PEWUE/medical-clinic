@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDate;
@@ -68,10 +69,10 @@ public class AppointmentServiceTest {
         );
         Page<Appointment> page = new PageImpl<>(appointments, pageable, appointments.size());
 
-        when(appointmentRepository.findByFilters(doctor.getId(), patient.getId(), pageable)).thenReturn(page);
+        when(appointmentRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(page);
 
         //when
-        Page<Appointment> result = appointmentService.find(doctor.getId(), patient.getId(), pageable);
+        Page<Appointment> result = appointmentService.findAppointments(doctor.getId(), patient.getId(), null, null, null, null, pageable);
 
         //then
         assertAll(

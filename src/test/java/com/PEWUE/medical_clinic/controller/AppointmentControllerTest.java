@@ -26,6 +26,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -52,7 +54,7 @@ public class AppointmentControllerTest {
         Pageable pageable = PageRequest.of(0, 2);
         Page<Appointment> page = new PageImpl<>(appointments, pageable, appointments.size());
 
-        when(appointmentService.find(doctorId, patientId, pageable)).thenReturn(page);
+        when(appointmentService.findAppointments(eq(doctorId), eq(patientId), isNull(), isNull(), isNull(), isNull(), eq(pageable))).thenReturn(page);
 
         mockMvc.perform(
                         MockMvcRequestBuilders.get("/appointments")

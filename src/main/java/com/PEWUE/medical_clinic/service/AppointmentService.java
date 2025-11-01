@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -31,9 +32,35 @@ public class AppointmentService {
     private final DoctorRepository doctorRepository;
     private final PatientRepository patientRepository;
 
-    public Page<Appointment> find(Long doctorId, Long patientId, Pageable pageable) {
-        log.info("Finding appointments by doctorId={}, patientId={}, pageable={}", doctorId, patientId, pageable);
-        return appointmentRepository.findByFilters(doctorId, patientId, pageable);
+    public Page<Appointment> findAppointments(
+            Long doctorId,
+            Long patientId,
+            String specialization,
+            LocalDateTime from,
+            LocalDateTime to,
+            Boolean freeSlots,
+            Pageable pageable) {
+
+        Specification<Appointment> spec = (root, query, cb) -> null;
+
+        if (doctorId != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("doctor").get("id"), doctorId));
+        }
+        if (patientId != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("patient").get("id"), patientId));
+        }
+        if (specialization != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("doctor").get("specialization"), specialization));
+        }
+        if (from != null && to != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.between(root.get("date"), from, to));
+        }
+        if (freeSlots != null && freeSlots) {
+            spec = spec.and((root, query, cb) -> cb.isNull(root.get("patient")));
+        }
+
+        return appointmentRepository.findAll(spec, pageable);
     }
 
     public Appointment findById(Long appointmentId) {
@@ -41,48 +68,6 @@ public class AppointmentService {
         return appointmentRepository.findById(appointmentId)
                 .orElseThrow(() -> new AppointmentNotFoundException(appointmentId));
     }
-
-    public Page<Appointment> findFreeSlots(Long doctorId, Pageable pageable) {
-        log.info("Finding free appointment slots by doctorId={}", doctorId);
-        return appointmentRepository.findFreeAppointmentsFromNow(doctorId, LocalDateTime.now(), pageable);
-    }
-
-    public Page<Appointment> findFreeAppointmentsBySpecializationAndDay(String specialization, LocalDate date, Pageable pageable) {
-        log.info("Finding free appointment slots, specialization={}, date={}", specialization, date);
-        LocalDateTime startOfDay = date.atStartOfDay();
-        LocalDateTime endOfDay = date.plusDays(1).atStartOfDay();
-        return appointmentRepository.findFreeAppointmentsBySpecializationAndDay(specialization, startOfDay, endOfDay, pageable);
-    }
-
-    public Page<Appointment> findPatientAppointmentsBySpecializationAndTimeRange(
-            Long patientId,
-            String specialization,
-            LocalDateTime from,
-            LocalDateTime to,
-            Pageable pageable
-    ) {
-        if (from.isAfter(to)) {
-            throw new InvalidAppointmentTimeException("Invalid time range: 'from' is after 'to'");
-        }
-        return appointmentRepository.findByPatientAndSpecializationAndDateRange(
-                patientId, specialization, from, to, pageable
-        );
-    }
-
-    public Page<Appointment> findFreeSlotsBySpecializationAndDateRange(
-            String specialization, LocalDateTime from, LocalDateTime to, Pageable pageable
-    ) {
-        if (from.isBefore(LocalDateTime.now())) {
-            throw new InvalidAppointmentTimeException("Date range cannot start in the past");
-        }
-        if (from.isAfter(to)) {
-            throw new InvalidAppointmentTimeException("Invalid time range: 'from' is after 'to'");
-        }
-        return appointmentRepository.findFreeSlotsBySpecializationAndDateRange(
-                specialization, from, to, pageable
-        );
-    }
-
 
     @Transactional
     public Appointment add(AppointmentCreateCommand command) {
