@@ -68,7 +68,7 @@ public class AppointmentController {
             @RequestParam(required = false) Boolean freeSlots,
             @ParameterObject Pageable pageable) {
 
-        log.info("Find appointments with filters doctorId={}, patientId={}, specialization={}, from={}, to={}, freeSlots={}, pageable={}",
+        log.info("Received GET /appointments with filters doctorId={}, patientId={}, specialization={}, from={}, to={}, freeSlots={}, pageable={}",
                 doctorId, patientId, specialization, from, to, freeSlots, pageable);
 
         Page<Appointment> page = appointmentService.findAppointments(

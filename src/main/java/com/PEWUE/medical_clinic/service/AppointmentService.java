@@ -40,6 +40,8 @@ public class AppointmentService {
             LocalDateTime to,
             Boolean freeSlots,
             Pageable pageable) {
+        log.info("Find appointments with filters doctorId={}, patientId={}, specialization={}, from={}, to={}, freeSlots={}, pageable={}",
+                doctorId, patientId, specialization, from, to, freeSlots, pageable);
 
         Specification<Appointment> spec = (root, query, cb) -> null;
 
