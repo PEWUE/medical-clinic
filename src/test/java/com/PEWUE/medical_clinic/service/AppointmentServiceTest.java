@@ -230,7 +230,7 @@ public class AppointmentServiceTest {
                         .id(1L)
                         .doctor(doctor)
                         .startTime(LocalDateTime.now().plusDays(2).withHour(9).withMinute(30).withSecond(0).withNano(0))
-                        .endTime(LocalDateTime.now().plusDays(2).withHour(10).withMinute(00).withSecond(0).withNano(0))
+                        .endTime(LocalDateTime.now().plusDays(2).withHour(10).withMinute(0).withSecond(0).withNano(0))
                         .build(),
                 Appointment.builder().
                         id(2L)

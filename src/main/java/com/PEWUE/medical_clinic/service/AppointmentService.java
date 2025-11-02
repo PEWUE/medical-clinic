@@ -4,7 +4,6 @@ import com.PEWUE.medical_clinic.command.AppointmentCreateCommand;
 import com.PEWUE.medical_clinic.command.BookAppointmentCommand;
 import com.PEWUE.medical_clinic.exception.AppointmentNotFoundException;
 import com.PEWUE.medical_clinic.exception.DoctorNotFoundException;
-import com.PEWUE.medical_clinic.exception.InvalidAppointmentTimeException;
 import com.PEWUE.medical_clinic.exception.PatientNotFoundException;
 import com.PEWUE.medical_clinic.model.Appointment;
 import com.PEWUE.medical_clinic.model.Doctor;
@@ -21,7 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Service
