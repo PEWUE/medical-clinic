@@ -13,6 +13,17 @@ services:
     ports:
       - '8080:8080'
 
+  visit-gateway-app:
+    build: ../../visit-gateway
+    container_name: 'visit-gateway-app'
+    ports:
+      - '8081:8081'
+    environment:
+      - MEDICAL_CLINIC_URL=http://medical-clinic-app:8080
+    depends_on:
+      - app
+      - postgres-db
+
   postgres-db:
     image: postgres
     container_name: 'postgres'
