@@ -19,7 +19,7 @@ services:
     ports:
       - '8081:8081'
     environment:
-      - MEDICAL_CLINIC_URL=http://medical-clinic-app:8080
+      - MEDICAL_CLINIC_URL=http://app:8080
     depends_on:
       - app
       - postgres-db
