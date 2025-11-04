@@ -72,7 +72,7 @@ public class AppointmentServiceTest {
         when(appointmentRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(page);
 
         //when
-        Page<Appointment> result = appointmentService.findAppointments(doctor.getId(), patient.getId(), null, null, null, null, pageable);
+        Page<Appointment> result = appointmentService.find(doctor.getId(), patient.getId(), null, null, null, null, pageable);
 
         //then
         assertAll(

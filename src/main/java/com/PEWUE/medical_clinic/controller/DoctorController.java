@@ -156,7 +156,7 @@ public class DoctorController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @PutMapping("/{email}")
-    public DoctorDto editDoctor(@PathVariable String email, @RequestBody DoctorEditCommand doctorEditCommand) {
+    public DoctorDto edit(@PathVariable String email, @RequestBody DoctorEditCommand doctorEditCommand) {
         log.info("Received PUT /doctors/{} to edit doctor", email);
         Doctor doctor = doctorMapper.toEntity(doctorEditCommand);
         return doctorMapper.toDto(doctorService.edit(email, doctor));

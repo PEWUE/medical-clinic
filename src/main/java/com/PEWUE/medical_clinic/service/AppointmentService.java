@@ -11,6 +11,7 @@ import com.PEWUE.medical_clinic.model.Patient;
 import com.PEWUE.medical_clinic.repository.AppointmentRepository;
 import com.PEWUE.medical_clinic.repository.DoctorRepository;
 import com.PEWUE.medical_clinic.repository.PatientRepository;
+import com.PEWUE.medical_clinic.specification.AppointmentSpecification;
 import com.PEWUE.medical_clinic.validator.AppointmentValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +31,7 @@ public class AppointmentService {
     private final DoctorRepository doctorRepository;
     private final PatientRepository patientRepository;
 
-    public Page<Appointment> findAppointments(
+    public Page<Appointment> find(
             Long doctorId,
             Long patientId,
             String specialization,
@@ -41,26 +42,7 @@ public class AppointmentService {
         log.info("Find appointments with filters doctorId={}, patientId={}, specialization={}, from={}, to={}, freeSlots={}, pageable={}",
                 doctorId, patientId, specialization, from, to, freeSlots, pageable);
 
-        Specification<Appointment> spec = (root, query, cb) -> null;
-
-        if (doctorId != null) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("doctor").get("id"), doctorId));
-        }
-        if (patientId != null) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("patient").get("id"), patientId));
-        }
-        if (specialization != null) {
-            spec = spec.and((root, query, cb) -> cb.equal(root.get("doctor").get("specialization"), specialization));
-        }
-        if (from != null && to != null) {
-            spec = spec.and((root, query, cb) -> cb.and(
-                    cb.greaterThanOrEqualTo(root.get("startTime"), from),
-                    cb.lessThanOrEqualTo(root.get("endTime"), to)
-            ));
-        }
-        if (freeSlots != null && freeSlots) {
-            spec = spec.and((root, query, cb) -> cb.isNull(root.get("patient")));
-        }
+        Specification<Appointment> spec = AppointmentSpecification.build(doctorId, patientId, specialization, from, to, freeSlots);
 
         return appointmentRepository.findAll(spec, pageable);
     }

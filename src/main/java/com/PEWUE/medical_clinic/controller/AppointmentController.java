@@ -58,7 +58,7 @@ public class AppointmentController {
                     description = "Internal server error",
                     content = @Content(schema = @Schema(implementation = ErrorMessageDto.class)))})
     @GetMapping
-    public PageDto<AppointmentDto> findAppointments(
+    public PageDto<AppointmentDto> find(
             @RequestParam(required = false) Long doctorId,
             @RequestParam(required = false) Long patientId,
             @RequestParam(required = false) String specialization,
@@ -70,7 +70,7 @@ public class AppointmentController {
         log.info("Received GET /appointments with filters doctorId={}, patientId={}, specialization={}, from={}, to={}, freeSlots={}, pageable={}",
                 doctorId, patientId, specialization, from, to, freeSlots, pageable);
 
-        Page<Appointment> page = appointmentService.findAppointments(
+        Page<Appointment> page = appointmentService.find(
                 doctorId, patientId, specialization, from, to, freeSlots, pageable);
 
         return pageMapper.toDto(page, appointmentMapper::toDto);
@@ -95,7 +95,7 @@ public class AppointmentController {
                             schema = @Schema(implementation = ErrorMessageDto.class)))
     })
     @GetMapping("/{appointmentId}")
-    public AppointmentDto getAppointmentById(@PathVariable Long appointmentId) {
+    public AppointmentDto findById(@PathVariable Long appointmentId) {
         log.info("Received GET /appointments/{}", appointmentId);
         Appointment appointment = appointmentService.findById(appointmentId);
         return appointmentMapper.toDto(appointment);
@@ -182,7 +182,7 @@ public class AppointmentController {
     })
     @DeleteMapping("/{appointmentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void cancelAppointment(@PathVariable Long appointmentId) {
+    public void cancel(@PathVariable Long appointmentId) {
         appointmentService.cancel(appointmentId);
     }
 }

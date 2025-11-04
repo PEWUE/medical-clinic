@@ -53,7 +53,7 @@ public class AppointmentControllerTest {
         Pageable pageable = PageRequest.of(0, 2);
         Page<Appointment> page = new PageImpl<>(appointments, pageable, appointments.size());
 
-        when(appointmentService.findAppointments(eq(doctorId), eq(patientId), isNull(), isNull(), isNull(), isNull(), eq(pageable))).thenReturn(page);
+        when(appointmentService.find(eq(doctorId), eq(patientId), isNull(), isNull(), isNull(), isNull(), eq(pageable))).thenReturn(page);
 
         mockMvc.perform(
                         MockMvcRequestBuilders.get("/appointments")
