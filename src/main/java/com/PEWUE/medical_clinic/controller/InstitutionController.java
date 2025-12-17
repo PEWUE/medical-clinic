@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/institutions")
@@ -55,6 +57,7 @@ public class InstitutionController {
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @GetMapping
     public PageDto<InstitutionDto> find(@ParameterObject Pageable pageable) {
+        log.info("Received GET /institutions, pageable={}", pageable);
         Page<Institution> page = institutionService.find(pageable);
         return pageMapper.toDto(page, institutionMapper::toDto);
     }
@@ -87,8 +90,9 @@ public class InstitutionController {
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public InstitutionDto add(@RequestBody InstitutionCreateCommand institutionCreateCommand) {
-        Institution institution = institutionMapper.toEntity(institutionCreateCommand);
+    public InstitutionDto add(@RequestBody InstitutionCreateCommand command) {
+        log.info("Received POST /institutions to add new institution: {} {} {}", command.name(), command.postalCode(), command.city());
+        Institution institution = institutionMapper.toEntity(command);
         return institutionMapper.toDto(institutionService.add(institution));
     }
 
@@ -112,6 +116,7 @@ public class InstitutionController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
+        log.info("Received DELETE /institutions with given id {}", id);
         institutionService.delete(id);
     }
 
@@ -137,6 +142,7 @@ public class InstitutionController {
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @PutMapping("/{institutionId}/doctors/{doctorId}")
     public InstitutionDto assignDoctorToInstitution(@PathVariable Long doctorId, @PathVariable Long institutionId) {
+        log.info("Received PUT /institutions to assign doctorId {} to institutionId {}", doctorId, institutionId);
         return institutionMapper.toDto(institutionService.assignDoctorToInstitution(doctorId, institutionId));
     }
 }

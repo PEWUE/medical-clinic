@@ -16,14 +16,14 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -31,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 public class DoctorControllerTest {
     @MockitoBean
     DoctorService doctorService;
@@ -48,7 +49,7 @@ public class DoctorControllerTest {
         Pageable pageable = PageRequest.of(0, 2);
         Page<Doctor> page = new PageImpl<>(doctors, pageable, doctors.size());
 
-        when(doctorService.find(pageable)).thenReturn(page);
+        when(doctorService.find(null, pageable)).thenReturn(page);
 
         mockMvc.perform(
                 MockMvcRequestBuilders.get("/doctors")

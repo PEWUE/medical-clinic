@@ -11,43 +11,77 @@ import com.PEWUE.medical_clinic.model.Patient;
 import com.PEWUE.medical_clinic.repository.AppointmentRepository;
 import com.PEWUE.medical_clinic.repository.DoctorRepository;
 import com.PEWUE.medical_clinic.repository.PatientRepository;
+import com.PEWUE.medical_clinic.specification.AppointmentSpecification;
 import com.PEWUE.medical_clinic.validator.AppointmentValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final DoctorRepository doctorRepository;
     private final PatientRepository patientRepository;
 
-    public Page<Appointment> find(Long doctorId, Long patientId, Pageable pageable) {
-        return appointmentRepository.findByFilters(doctorId, patientId, pageable);
+    public Page<Appointment> find(
+            Long doctorId,
+            Long patientId,
+            String specialization,
+            LocalDateTime from,
+            LocalDateTime to,
+            Boolean freeSlots,
+            Pageable pageable) {
+        log.info("Find appointments with filters doctorId={}, patientId={}, specialization={}, from={}, to={}, freeSlots={}, pageable={}",
+                doctorId, patientId, specialization, from, to, freeSlots, pageable);
+
+        Specification<Appointment> spec = AppointmentSpecification.build(doctorId, patientId, specialization, from, to, freeSlots);
+
+        return appointmentRepository.findAll(spec, pageable);
+    }
+
+    public Appointment findById(Long appointmentId) {
+        log.info("Finding appointments by id={}", appointmentId);
+        return appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new AppointmentNotFoundException(appointmentId));
     }
 
     @Transactional
     public Appointment add(AppointmentCreateCommand command) {
+        log.info("Creating new appointment for doctorId={}", command.doctorId());
         Doctor doctor = doctorRepository.findById(command.doctorId())
                 .orElseThrow(() -> new DoctorNotFoundException(command.doctorId()));
         Appointment freeSlot = Appointment.createNewAppointment(command);
         freeSlot.setDoctor(doctor);
         AppointmentValidator.validateCreateAppointment(freeSlot, appointmentRepository);
+        log.info("Successfully created appointment for doctorId={}, date={}", command.doctorId(), freeSlot.getStartTime());
         return appointmentRepository.save(freeSlot);
     }
 
     @Transactional
     public Appointment book(BookAppointmentCommand command) {
+        log.info("Booking appointmentId={} for patientId={}", command.appointmentId(), command.patientId());
         Appointment appointment = appointmentRepository.findById(command.appointmentId())
                 .orElseThrow(() -> new AppointmentNotFoundException(command.appointmentId()));
         AppointmentValidator.validateBookAppointment(appointment);
         Patient patient = patientRepository.findById(command.patientId())
                 .orElseThrow(() -> new PatientNotFoundException(command.patientId()));
         appointment.setPatient(patient);
+        log.info("AppointmentId={} successfully booked for patientId={}", command.appointmentId(), command.patientId());
         return appointmentRepository.save(appointment);
+    }
+
+    @Transactional
+    public void cancel(Long appointmentId) {
+        Appointment appointment = appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new AppointmentNotFoundException(appointmentId));
+        appointmentRepository.delete(appointment);
     }
 }

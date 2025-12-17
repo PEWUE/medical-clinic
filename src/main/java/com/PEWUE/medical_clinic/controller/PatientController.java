@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/patients")
@@ -56,6 +58,7 @@ public class PatientController {
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @GetMapping
     public PageDto<PatientDto> find(@ParameterObject Pageable pageable) {
+        log.info("Received GET /patients, pageable={}", pageable);
         Page<Patient> page = patientService.find(pageable);
         return pageMapper.toDto(page, patientMapper::toDto);
     }
@@ -82,6 +85,7 @@ public class PatientController {
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @GetMapping("/{email}")
     public PatientDto find(@PathVariable String email) {
+        log.info("Received GET /patients with email {}", email);
         return patientMapper.toDto(patientService.find(email));
     }
 
@@ -119,8 +123,9 @@ public class PatientController {
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public PatientDto add(@RequestBody PatientCreateCommand patientCreateCommand) {
-        Patient patient = patientMapper.toEntity(patientCreateCommand);
+    public PatientDto add(@RequestBody PatientCreateCommand command) {
+        log.info("Received POST /patients to add patient {} {}", command.firstName(), command.lastName());
+        Patient patient = patientMapper.toEntity(command);
         return patientMapper.toDto(patientService.add(patient));
     }
 
@@ -144,6 +149,7 @@ public class PatientController {
     @DeleteMapping("/{email}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable String email) {
+        log.info("Received DELETE /patients with email {}", email);
         patientService.delete(email);
     }
 
@@ -174,8 +180,9 @@ public class PatientController {
                             mediaType = "application/json",
                             schema = @Schema(implementation = ErrorMessageDto.class)))})
     @PutMapping("/{email}")
-    public PatientDto edit(@PathVariable String email, @RequestBody PatientEditCommand patientEditCommand) {
-        Patient patient = patientMapper.toEntity(patientEditCommand);
+    public PatientDto edit(@PathVariable String email, @RequestBody PatientEditCommand command) {
+        log.info("Received PUT /patients with email {}", email);
+        Patient patient = patientMapper.toEntity(command);
         return patientMapper.toDto(patientService.edit(email, patient));
     }
 }

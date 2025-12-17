@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDate;
@@ -68,10 +69,10 @@ public class AppointmentServiceTest {
         );
         Page<Appointment> page = new PageImpl<>(appointments, pageable, appointments.size());
 
-        when(appointmentRepository.findByFilters(doctor.getId(), patient.getId(), pageable)).thenReturn(page);
+        when(appointmentRepository.findAll(any(Specification.class), eq(pageable))).thenReturn(page);
 
         //when
-        Page<Appointment> result = appointmentService.find(doctor.getId(), patient.getId(), pageable);
+        Page<Appointment> result = appointmentService.find(doctor.getId(), patient.getId(), null, null, null, null, pageable);
 
         //then
         assertAll(
@@ -100,8 +101,8 @@ public class AppointmentServiceTest {
         //given
         AppointmentCreateCommand command = new AppointmentCreateCommand(
                 2L,
-                LocalDateTime.of(2025, 10, 1, 10, 45),
-                LocalDateTime.of(2025, 10, 1, 11, 45)
+                LocalDateTime.now().plusDays(2).withHour(10).withMinute(45).withSecond(0).withNano(0),
+                LocalDateTime.now().plusDays(2).withHour(11).withMinute(45).withSecond(0).withNano(0)
         );
         Doctor doctor = Doctor.builder().id(2L).firstName("John").lastName("Doctor").specialization("dentist").build();
         Appointment appointment = Appointment.builder()
@@ -125,8 +126,8 @@ public class AppointmentServiceTest {
                 () -> assertEquals("John", result.getDoctor().getFirstName()),
                 () -> assertEquals("Doctor", result.getDoctor().getLastName()),
                 () -> assertEquals("dentist", result.getDoctor().getSpecialization()),
-                () -> assertEquals(LocalDateTime.of(2025, 10, 1, 10, 45), result.getStartTime()),
-                () -> assertEquals(LocalDateTime.of(2025, 10, 1, 11, 45), result.getEndTime())
+                () -> assertEquals(LocalDateTime.now().plusDays(2).withHour(10).withMinute(45).withSecond(0).withNano(0), result.getStartTime()),
+                () -> assertEquals(LocalDateTime.now().plusDays(2).withHour(11).withMinute(45).withSecond(0).withNano(0), result.getEndTime())
         );
         verify(doctorRepository).findById(command.doctorId());
     }
@@ -198,8 +199,8 @@ public class AppointmentServiceTest {
         //given
         AppointmentCreateCommand command = AppointmentCreateCommand.builder()
                 .doctorId(1L)
-                .startTime(LocalDateTime.of(2025, 10, 1, 10, 25))
-                .endTime(LocalDateTime.of(2025, 10, 1, 10, 50))
+                .startTime(LocalDateTime.now().plusDays(2).withHour(10).withMinute(25).withSecond(0).withNano(0))
+                .endTime(LocalDateTime.now().plusDays(2).withHour(10).withMinute(50).withSecond(0).withNano(0))
                 .build();
         Doctor doctor = Doctor.builder().id(1L).firstName("John").lastName("Doctor").specialization("dentist").build();
 
@@ -220,22 +221,22 @@ public class AppointmentServiceTest {
         //given
         AppointmentCreateCommand command = AppointmentCreateCommand.builder()
                 .doctorId(1L)
-                .startTime(LocalDateTime.of(2025, 10, 1, 10, 15))
-                .endTime(LocalDateTime.of(2025, 10, 1, 10, 30))
+                .startTime(LocalDateTime.now().plusDays(2).withHour(10).withMinute(15).withSecond(0).withNano(0))
+                .endTime(LocalDateTime.now().plusDays(2).withHour(10).withMinute(30).withSecond(0).withNano(0))
                 .build();
         Doctor doctor = Doctor.builder().id(1L).build();
         List<Appointment> existingAppointments = List.of(
                 Appointment.builder()
                         .id(1L)
                         .doctor(doctor)
-                        .startTime(LocalDateTime.of(2025, 10, 1, 9, 30))
-                        .endTime(LocalDateTime.of(2025, 10, 1, 10, 0))
+                        .startTime(LocalDateTime.now().plusDays(2).withHour(9).withMinute(30).withSecond(0).withNano(0))
+                        .endTime(LocalDateTime.now().plusDays(2).withHour(10).withMinute(0).withSecond(0).withNano(0))
                         .build(),
                 Appointment.builder().
                         id(2L)
                         .doctor(doctor)
-                        .startTime(LocalDateTime.of(2025, 10, 1, 10, 30))
-                        .endTime(LocalDateTime.of(2025, 10, 1, 11, 0))
+                        .startTime(LocalDateTime.now().plusDays(2).withHour(10).withMinute(30).withSecond(0).withNano(0))
+                        .endTime(LocalDateTime.now().plusDays(2).withHour(11).withMinute(0).withSecond(0).withNano(0))
                         .build()
         );
 
@@ -262,8 +263,8 @@ public class AppointmentServiceTest {
                 .id(1L)
                 .doctor(doctor)
                 .patient(null)
-                .startTime(LocalDateTime.of(2025, 10, 1, 10, 45))
-                .endTime(LocalDateTime.of(2025, 10, 1, 11, 45))
+                .startTime(LocalDateTime.now().plusDays(2).withHour(10).withMinute(45).withSecond(0).withNano(0))
+                .endTime(LocalDateTime.now().plusDays(2).withHour(11).withMinute(45).withSecond(0).withNano(0))
                 .build();
         Patient foundPatient = Patient.builder()
                 .id(2L)
@@ -294,8 +295,8 @@ public class AppointmentServiceTest {
                 () -> assertEquals("XYZ123", result.getPatient().getIdCardNo()),
                 () -> assertEquals("123-456-789", result.getPatient().getPhoneNumber()),
                 () -> assertEquals(LocalDate.of(1995, 5, 5), result.getPatient().getBirthday()),
-                () -> assertEquals(LocalDateTime.of(2025, 10, 1, 10, 45), result.getStartTime()),
-                () -> assertEquals(LocalDateTime.of(2025, 10, 1, 11, 45), result.getEndTime())
+                () -> assertEquals(LocalDateTime.now().plusDays(2).withHour(10).withMinute(45).withSecond(0).withNano(0), result.getStartTime()),
+                () -> assertEquals(LocalDateTime.now().plusDays(2).withHour(11).withMinute(45).withSecond(0).withNano(0), result.getEndTime())
         );
     }
 
@@ -376,8 +377,8 @@ public class AppointmentServiceTest {
                 .build();
         Appointment appointment = Appointment.builder()
                 .id(1L)
-                .startTime(LocalDateTime.of(2025, 10, 1, 10, 45))
-                .endTime(LocalDateTime.of(2025, 10, 1, 11, 15))
+                .startTime(LocalDateTime.now().plusDays(2).withHour(10).withMinute(45).withSecond(0).withNano(0))
+                .endTime(LocalDateTime.now().plusDays(2).withHour(11).withMinute(45).withSecond(0).withNano(0))
                 .build();
 
         when(appointmentRepository.findById(command.appointmentId())).thenReturn(Optional.of(appointment));

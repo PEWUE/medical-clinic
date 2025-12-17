@@ -48,10 +48,10 @@ public class DoctorServiceTest {
         );
         Page<Doctor> page = new PageImpl<>(doctors, pageable, doctors.size());
 
-        when(doctorRepository.findAll(pageable)).thenReturn(page);
+        when(doctorRepository.findByFilters(isNull(), any(Pageable.class))).thenReturn(page);
 
         //when
-        Page<Doctor> result = doctorService.find(pageable);
+        Page<Doctor> result = doctorService.find(null, pageable);
 
         //then
         assertAll(
@@ -69,7 +69,7 @@ public class DoctorServiceTest {
                 () -> assertEquals("gynecologist", result.getContent().get(1).getSpecialization()),
                 () -> assertEquals("dentist", result.getContent().get(2).getSpecialization())
         );
-        verify(doctorRepository).findAll(pageable);
+        verify(doctorRepository).findByFilters(isNull(), any(Pageable.class));
     }
 
     @Test

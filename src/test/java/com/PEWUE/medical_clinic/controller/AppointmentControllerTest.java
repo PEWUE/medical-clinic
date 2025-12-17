@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -24,12 +25,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 public class AppointmentControllerTest {
     @MockitoBean
     AppointmentService appointmentService;
@@ -49,7 +53,7 @@ public class AppointmentControllerTest {
         Pageable pageable = PageRequest.of(0, 2);
         Page<Appointment> page = new PageImpl<>(appointments, pageable, appointments.size());
 
-        when(appointmentService.find(doctorId, patientId, pageable)).thenReturn(page);
+        when(appointmentService.find(eq(doctorId), eq(patientId), isNull(), isNull(), isNull(), isNull(), eq(pageable))).thenReturn(page);
 
         mockMvc.perform(
                         MockMvcRequestBuilders.get("/appointments")
