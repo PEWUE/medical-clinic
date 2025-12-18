@@ -46,5 +46,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
       - name: Build docker image
         run: docker build -t medical-clinic:latest .
